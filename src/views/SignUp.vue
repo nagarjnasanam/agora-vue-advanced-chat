@@ -16,76 +16,128 @@
         <input type="submit" class="account" value="Have an Account?" />
       </div>
     </div>
-    <form class="form-right">
+    <form class="form-right" action="javascript:;"  @submit="handleSignUp">
       <h2 class="text-uppercase">Registration form</h2>
       <div class="row">
         <div class="col-sm-6 mb-3">
-          <label>First Name</label>
+          <label>Username</label>
           <input
             type="text"
             name="first_name"
             id="first_name"
             class="input-field"
+            v-model="formData.username"
           />
         </div>
         <div class="col-sm-6 mb-3">
-          <label>Last Name</label>
+          <label>Nickname</label>
           <input
             type="text"
             name="last_name"
             id="last_name"
             class="input-field"
+            v-model="formData.nickname"
           />
         </div>
       </div>
-      <div class="mb-3">
-        <label>Your Email</label>
-        <input type="email" class="input-field" name="email" required />
-      </div>
+
       <div class="row">
         <div class="col-sm-6 mb-3">
           <label>Password</label>
-          <input type="password" name="pwd" id="pwd" class="input-field" />
+          <input
+            type="password"
+            name="pwd"
+            id="pwd"
+            class="input-field"
+            v-model="formData.password"
+          />
         </div>
         <div class="col-sm-6 mb-3">
-          <label>Current Password</label>
-          <input type="password" name="cpwd" id="cpwd" class="input-field" />
+          <label>Repeat Password</label>
+          <input
+            type="password"
+            name="cpwd"
+            id="cpwd"
+            class="input-field"
+            v-model="formData.cPassword"
+          />
         </div>
       </div>
-      <div class="mb-3">
-        <label class="option"
-          >I agree to the <a href="#">Terms and Conditions</a>
-          <input type="checkbox" checked />
-          <span class="checkmark"></span>
-        </label>
-      </div>
+
       <div class="form-field">
-        <!-- <input
+        <input
           type="submit"
           value="Register"
           class="register"
           name="register"
-        /> -->
-        <button @click="handleSignUp()" class="register">Register</button>
+        />
+        <!-- <button @click="handleSignUp()" class="register">Register</button> -->
       </div>
     </form>
   </div>
 </template>
 
 <script>
-// import { useRouter } from "vue-router";
+import axios from 'axios'
+import { useRouter } from "vue-router";
 // import { useStore } from "vuex";
-export default {
-    name: "sign-up",
-    setup() {
-        const handleSignUp = ()=>{
-            console.log('register')
-        }
-        return {
-            handleSignUp
-        }
-    },
+import { reactive } from "vue";
+function myFunction() {
+  alert("The form was submitted");
 }
+export default {
+  name: "sign-up",
+  setup() {
+    const router = useRouter();
+
+    const formData = reactive({
+      username: "john",
+      password: "123",
+      nickname: "vuejs",
+      cPassword: "vuejs",
+    });
+    const handleSignUp = async () => {
+      console.log("register");
+      if (
+        formData.username &&
+        formData.nickname &&
+        formData.password &&
+        formData.password === formData.cPassword
+      ) {
+        await axios
+          .post(
+            "http://localhost:3006/register",
+            {
+              account: formData.username,
+              nickname: formData.nickname,
+              password: formData.password,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          )
+          .then((res) => {
+            console.log(res);
+            if (res.data) {
+              console.log("signup success");
+              router.push("/sign-in");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+            alert(error.response.data.data.error);
+          });
+      }
+    };
+    return {
+      handleSignUp,
+      formData,
+      myFunction    
+    };
+  },
+};
 </script>
   
   <style>

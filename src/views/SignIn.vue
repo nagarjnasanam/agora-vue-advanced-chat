@@ -8,7 +8,7 @@
             <div class="row">
               <div class="col-md-7 pe-0">
                 <div class="form-left h-100 py-5 px-5">
-                  <form action="" class="row g-4">
+                  <form  class="row g-4" action="javascript:;" @submit="handleSignIn()">
                     <div class="col-12">
                       <label>Username<span class="text-danger">*</span></label>
                       <div class="input-group">
@@ -19,6 +19,7 @@
                           type="text"
                           class="form-control"
                           placeholder="Enter Username"
+                          v-model="loginData.userid"
                         />
                       </div>
                     </div>
@@ -32,12 +33,13 @@
                         <input
                           type="text"
                           class="form-control"
+                          v-model="loginData.password"
                           placeholder="Enter Password"
                         />
                       </div>
                     </div>
 
-                    <div class="col-sm-6">
+                    <!-- <div class="col-sm-6">
                       <div class="form-check">
                         <input
                           class="form-check-input"
@@ -54,28 +56,28 @@
                       <a href="#" class="float-end text-primary"
                         >Forgot Password?</a
                       >
-                    </div>
-
-                    <!-- <div class="col-12">
-                      <button
-                      @click="handleSignIn()"
-                        type="submit"
-                        class="btn btn-primary px-4 float-end mt-4"
-                      >
-                        login
-                      </button>
                     </div> -->
-                  </form>
-                  
-                  <div class="col-12">
-                      <button
-                      @click="handleSignIn()"
+
+                    <div class="col-12">
+                      <input
+                        value="Login"
+                        @click="handleSignIn()"
                         type="submit"
                         class="btn btn-primary px-4 float-end mt-4"
-                      >
-                        login
-                      </button>
+                      />
+                    
                     </div>
+                  </form>
+
+                  <!-- <div class="col-12">
+                    <button
+                      @click="handleSignIn()"
+                      type="submit"
+                      class="btn btn-primary px-4 float-end mt-4"
+                    >
+                      login
+                    </button>
+                  </div> -->
                 </div>
               </div>
               <div class="col-md-5 ps-0 d-none d-md-block">
@@ -98,25 +100,55 @@
 </template>
 
 <script>
+import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import axios from "axios";
 export default {
   name: "sign-in",
 
   setup() {
+    const loginData = reactive({
+      userid: "",
+      password: "",
+    });
     const { dispatch } = useStore();
     const router = useRouter();
-    const handleSignIn = ()=>{
-        console.log("login")
-        dispatch("login");
-        router.push("/");
+    const handleSignIn = () => {
+      console.log("login",loginData);
 
+      if (loginData.userid && loginData.password) {
+        console.log("login begin")
+        axios
+          .post(
+            "http://localhost:3006/login",
+            {
+              account: loginData.userid,
+              password: loginData.password,
+            },
+            {
+              "Content-Type": "application/json",
+            }
+          )
+          .then((res) => {
+            console.log(res);
+            localStorage.setItem("AgoraUserId", res.data.chatUsername);
+            localStorage.setItem("AgoraToken", res.data.accessToken);
+            localStorage.setItem("AgoraAPPToken", res.data.appToken);
 
-    }
-    return{
-        handleSignIn
-
-    }
+            dispatch("login");
+            router.push("/");
+          })
+          .catch((error) => {
+            console.log(error.response.data.message);
+            alert(error.response.data.message);
+          });
+      }
+    };
+    return {
+      handleSignIn,
+      loginData,
+    };
   },
 };
 </script>
