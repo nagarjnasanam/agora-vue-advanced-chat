@@ -1,12 +1,12 @@
 <template>
   <div class="d-flex bd-highlight">
-  <div class="p-2 flex-grow-1 bd-highlight"> 
-    <h1>Agora Web chat</h1>
+    <div class="p-2 flex-grow-1 bd-highlight">
+      <h1>Agora Web chat</h1>
+    </div>
+    <div class="p-2 bd-highlight">
+      <button @click="logout()" class="btn btn-danger">logout</button>
+    </div>
   </div>
-  <div class="p-2 bd-highlight">
-    <button class="btn btn-danger">logout</button>
-  </div>
-</div>
 
   <vue-advanced-chat
     :height="'calc(100vh - 5vh)'"
@@ -102,6 +102,11 @@ export default {
     };
   },
   methods: {
+    async logout() {
+      console.log("logout",this.$store);
+     await this.$store.dispatch("logOut");
+     location.reload();
+    },
     onFetchMessages({ room, options = {} }) {
       console.log(room, options);
       this.selectedRoom = room;
