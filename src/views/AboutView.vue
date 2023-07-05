@@ -25,7 +25,7 @@
       <div class="">
         {{ selectedRoom.roomName }}
 
-        <button class="position-absolute end-0">
+        <button class="btn btn-primary position-absolute end-0">
           <i class="bi bi-camera-video-fill"></i>
         </button>
       </div>
@@ -39,6 +39,42 @@
 </template>
 
 <script>
+import AgoraServer from "../server/agora.server";
+import AC from "agora-chat";
+
+const conn = new AC.connection({
+  appKey: process.env.VUE_APP_KEY,
+});
+conn.addEventHandler("connection&message", {
+  onConnected: () => {
+    console.log("connected");
+  },
+  // Occurs when the app is disconnected from Agora Chat.
+  onDisconnected: () => {
+    // this.$store.dispatch("logOut");
+    location.reload();
+    this.handleLogin();
+  },
+  onTextMessage: (message) => {
+    console.log(message);
+  },
+  onTokenWillExpire: () => {
+    alert("Token is about to expire");
+  },
+  onTokenExpired: () => {
+    this.logout();
+    alert('"The token has expired"');
+  },
+  onImageMessage: (message) => {
+    console.log(message);
+  },
+  onAudioMessage: (message) => {
+    console.log(message);
+  },
+  onError: (error) => {
+    console.log("on error", error);
+  },
+});
 import { register } from "vue-advanced-chat";
 register();
 
@@ -72,8 +108,8 @@ export default {
               username: "John Doe",
               avatar: "assets/imgs/doe.png",
               status: {
-                state: "online",
-                lastChanged: "today, 14:30",
+                state: "offline",
+                lastChanged: "today, 23:30",
               },
             },
             {
@@ -101,13 +137,64 @@ export default {
       selectedRoom: null,
     };
   },
+  async mounted() {
+    console.log(AgoraServer);
+    await AgoraServer.handleLogin();
+    await AgoraServer.fetchRooms("john").then((res, err) => {
+      if (res) {
+        res?.users?.map((user) => {
+          this.rooms.push({
+            roomName: user,
+            roomId: user,
+            unreadCount: 4,
+            index: 3,
+            lastMessage: {
+            content: "Last message received",
+            senderId: 1234,
+            username: "John Doe",
+            timestamp: "10:20",
+            saved: true,
+            distributed: false,
+            seen: false,
+            new: true,
+          },
+            avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
+            users: [
+              {
+                _id: 1234,
+                username: "John Doe",
+                avatar: "assets/imgs/doe.png",
+                status: {
+                  state: "offline",
+                  lastChanged: "today, 23:30",
+                },
+              },
+              {
+                _id: user,
+                username: user,
+                avatar: "assets/imgs/snow.png",
+                status: {
+                  state: "offline",
+                  lastChanged: "14 July, 20:00",
+                },
+              },
+            ],
+            typingUsers: [4321],
+          });
+        });
+      } else {
+        console.log(err);
+      }
+    });
+  },
   methods: {
     async logout() {
-      console.log("logout",this.$store);
-     await this.$store.dispatch("logOut");
-     location.reload();
+      console.log("logout", this.$store);
+      await this.$store.dispatch("logOut");
+      location.reload();
     },
     onFetchMessages({ room, options = {} }) {
+      this.messages=[]
       console.log(room, options);
       this.selectedRoom = room;
       setTimeout(() => {
