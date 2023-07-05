@@ -73,4 +73,24 @@ export default {
         }
 
     },
+    async retrieveIndividualChat(uid) {
+        var options = {
+            // The ID of the peer user, or chat group, or chat room, depending on the chat type.
+            targetId: uid,
+            // (Optional) The number of messages that you expect to get on each page. The value range is [1,50] and the default value is 20.
+            pageSize: 20,
+            // (Optional) The starting message ID for query. If the parameter is set as -1, an empty string, or null, the SDK retrieves messages from the latest one.
+            cursor: -1,
+            // (Optional) The conversation type. (Default) singleChat: one-to-one conversation; groupChat: group conversation; chatRoom: chat room conversation.
+            chatType: "singleChat",
+            // The message search direction.
+            // (Default) up: Messages are retrieved in the reverse chronological order of when the server receives them;
+            // down: Messages are retrieved in the chronological order of when the server receives them.
+            searchDirection: "down",
+        };
+        const data = await conn
+            ?.getHistoryMessages(options)
+        return data
+
+    },
 }

@@ -140,6 +140,8 @@ export default {
   async mounted() {
     console.log(AgoraServer);
     await AgoraServer.handleLogin();
+    const data =await AgoraServer.retrieveIndividualChat("john")
+    console.log("data",data)
     await AgoraServer.fetchRooms("john").then((res, err) => {
       if (res) {
         res?.users?.map((user) => {
