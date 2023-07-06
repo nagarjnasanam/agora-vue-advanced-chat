@@ -116,20 +116,20 @@ export default {
         const formattedFiles = []
 
         // files.forEach(file => {
-            const messageFile = {
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                extension: file.extension || file.type,
-                url: file.url || file.localUrl
-            }
+        const messageFile = {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            extension: file.extension || file.type,
+            url: file.url || file.localUrl
+        }
 
-            if (file.audio) {
-                messageFile.audio = true
-                messageFile.duration = file.duration
-            }
+        if (file.audio) {
+            messageFile.audio = true
+            messageFile.duration = file.duration
+        }
 
-            formattedFiles.push(messageFile)
+        formattedFiles.push(messageFile)
         // })
 
         return formattedFiles
@@ -139,20 +139,20 @@ export default {
         const formattedFiles = []
 
         // files.forEach(file => {
-            const messageFile = {
-                file_name: file?.ext?.file_name,
-                file_size: file?.ext?.file_size,
-                file_type: file.type,
-                extension: file?.ext?.file_type,
-                url: file.url || file.localUrl
-            }
+        const messageFile = {
+            file_name: file?.ext?.file_name,
+            file_size: file?.ext?.file_size,
+            file_type: file.type,
+            extension: file?.ext?.file_type,
+            url: file.url || file.localUrl
+        }
 
-            if (file.audio) {
-                messageFile.audio = true
-                messageFile.duration = file?.ext?.file_duration
-            }
+        if (file.audio) {
+            messageFile.audio = true
+            messageFile.duration = file?.ext?.file_duration
+        }
 
-            formattedFiles.push(messageFile)
+        formattedFiles.push(messageFile)
         // })
 
         return formattedFiles
@@ -162,59 +162,59 @@ export default {
         console.log(uid)
 
         // await files.forEach(
-            // file => {
-            console.log(file)
-            var allowType = {
-                jpg: true,
-                gif: true,
-                png: true,
-                bmp: true,
+        // file => {
+        console.log(file)
+        var allowType = {
+            jpg: true,
+            gif: true,
+            png: true,
+            bmp: true,
+        };
+        if (file.extension.toLowerCase() in allowType) {
+            var option = {
+                // Set the message type.
+                type: "img",
+                file: file,
+                ext: {
+                    // Set the image file length.
+                    file_size: file.size,
+                    file_type: file.extension,
+                    file_name: file.name,
+
+
+
+                },
+                // Set the username of the message receiver.
+                to: uid,
+                // Set the chat type.
+                chatType: "singleChat",
+                // Occurs when the image file fails to be uploaded.
+                onFileUploadError: function () {
+                    // console.log("onFileUploadError");
+                },
+                // Reports the progress of uploading the image file.
+                onFileUploadProgress: function () {
+                    // console.log(e);
+                },
+                // Occurs when the image file is successfully uploaded.
+                onFileUploadComplete: function () {
+                    // console.log("onFileUploadComplete");
+                },
             };
-            if (file.extension.toLowerCase() in allowType) {
-                var option = {
-                    // Set the message type.
-                    type: "img",
-                    file: file,
-                    ext: {
-                        // Set the image file length.
-                        file_size: file.size,
-                        file_type: file.extension,
-                        file_name:file.name,
-                        
-                        
 
-                    },
-                    // Set the username of the message receiver.
-                    to: uid,
-                    // Set the chat type.
-                    chatType: "singleChat",
-                    // Occurs when the image file fails to be uploaded.
-                    onFileUploadError: function () {
-                        // console.log("onFileUploadError");
-                    },
-                    // Reports the progress of uploading the image file.
-                    onFileUploadProgress: function () {
-                        // console.log(e);
-                    },
-                    // Occurs when the image file is successfully uploaded.
-                    onFileUploadComplete: function () {
-                        // console.log("onFileUploadComplete");
-                    },
-                };
+            var msg = AC.message.create(option);
+            conn.send(msg).then((res, err) => {
+                console.log(res, err)
+            })
 
-                var msg = AC.message.create(option);
-                conn.send(msg).then((res, err) => {
-                    console.log(res, err)
-                })
-
-            }
+        }
 
         // }
 
 
     },
-  async  sendAudio(uid, files) {
-       await  files.forEach(async file => {
+    async sendAudio(uid, files) {
+        await files.forEach(async file => {
             if (file.audio) {
                 var allowType = {
                     mp3: true,
@@ -250,7 +250,7 @@ export default {
                         },
                         ext: {
                             file_type: fileType,
-                            file_name:file.name,
+                            file_name: file.name,
                             file_duration: file.duration,
                             file_size: file.size,
                         },
@@ -259,8 +259,8 @@ export default {
                     var msg = AC.message.create(option);
 
                     // Call send to send the voice message.
-                   await  conn.send(msg)
-                       
+                    await conn.send(msg)
+
                 }
 
             }
@@ -269,5 +269,30 @@ export default {
 
 
 
+    },
+    async fetchUsers() {
+        var data;
+
+        try {
+            await axios.get(
+                "https://a41.chat.agora.io/41975973/1139922/users",
+                {
+                    headers: {
+                        Authorization: `Bearer ${appToken}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            ).then(res => {
+                console.log(res)
+                data = res
+                return res
+            })
+
+        } catch (error) {
+            data = error
+            console.log(error)
+
+        }
+        return data
     },
 }

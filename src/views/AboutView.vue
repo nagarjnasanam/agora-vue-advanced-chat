@@ -1,15 +1,58 @@
 <template>
   <div class="d-flex bd-highlight">
+   
     <div class="p-2 flex-grow-1 bd-highlight">
       <h1>Agora Web chat</h1>
     </div>
+   
     <div class="p-2 bd-highlight">
-      <button @click="logout()" class="btn btn-danger">logout</button>
+      <button
+        @click="
+          () => {
+            this.theme = 'light';
+          }
+        "
+        class="btn btn-light"
+      >
+        Light
+      </button>
+    </div>
+    <div class="p-2 bd-highlight">
+      <button
+        @click="
+          () => {
+            this.theme = 'dark';
+          }
+        "
+        class="btn btn-dark"
+      >
+        Dark
+      </button>
+    </div>
+    <div class="p-2 bd-highlight">
+      <button @click="logout()" class="btn btn-danger">logout <span class="text-success">{{ this.currentUserId }}</span> </button>
+    </div>
+  </div>
+  <div class="container auto" v-if="showNewUsers">
+    <div class="row">
+      <div class="col-sm-12 col-md-4">
+        <v-autocomplete
+          label="Select New Chat"
+          no-data-text="..."
+          :items="newUsers"
+          variant="solo"
+          clearable
+          @update:search="onSearchChannge"
+          @click:clear="onSearchClear"
+          @update:modelValue="onModalValue"
+        ></v-autocomplete>
+      </div>
     </div>
   </div>
 
   <vue-advanced-chat
     :height="'calc(100vh - 5vh)'"
+    :theme="theme"
     :current-user-id="currentUserId"
     :rooms="JSON.stringify(rooms)"
     :messages="JSON.stringify(messages)"
@@ -19,6 +62,7 @@
     :loading-rooms="loadingRooms"
     @fetch-messages="onFetchMessages($event.detail[0])"
     @send-message="sendMessage($event.detail[0])"
+    @add-room="addNewChat($event.detail[0])"
   >
     <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
     <div v-if="selectedRoom" slot="room-header-info">
@@ -84,6 +128,9 @@ register();
 export default {
   data() {
     return {
+      theme: "dark",
+      showNewUsers: false,
+      newUsers: [],
       currentUserId: "",
       rooms: [
         {
@@ -111,7 +158,6 @@ export default {
                 state: "offline",
                 lastChanged: "today, 23:30",
               },
-              
             },
             {
               _id: "mn",
@@ -291,7 +337,7 @@ export default {
           console.log(file);
 
           if (file.audio) {
-            await AgoraServer.sendAudio("agora", message.files);
+            await AgoraServer.sendAudio(message.roomId, message.files);
             this.messages = [
               ...this.messages,
               {
@@ -305,7 +351,7 @@ export default {
             ];
           } else {
             console.log(file);
-            await AgoraServer.sendImage("agora", file);
+            await AgoraServer.sendImage(message.roomId, file);
             this.messages = [
               ...this.messages,
               {
@@ -322,6 +368,78 @@ export default {
       }
       // console.log(message);
     },
+    addNewChat() {
+      this.showNewUsers = true;
+      AgoraServer.fetchUsers().then((res) => {
+        console.log(res);
+        res?.data?.entities?.map((user) => {
+          console.log(user.username);
+          const isItemPresent = this.rooms.some(
+            (item) => item.roomName === user.username
+          );
+          if (!isItemPresent && user.username !== this.currentUserId) {
+            // console.log("yes", user.username);
+            this.newUsers.push(user.username);
+          }
+        });
+      });
+    },
+    onSearchChannge(item) {
+      console.log(item);
+    },
+    onSearchClear() {
+      console.log("search cleared");
+    },
+    onModalValue(item) {
+      console.log("onModalValue", item);
+      this.rooms = [
+        {
+          roomName: item,
+          roomId: item,
+          avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
+          // unreadCount: 4,
+          // index: 3,
+          lastMessage: {
+            // content: "Last message received",
+            // senderId: 1234,
+            // username: "John Doe",
+            // timestamp: "10:20",
+            // saved: true,
+            // distributed: false,
+            // seen: false,
+            // new: true,
+          },
+          users: [
+            {
+              _id: localStorage.getItem("AgoraUserId"),
+              username: localStorage.getItem("AgoraUserId"),
+              avatar: "assets/imgs/doe.png",
+              status: {
+                state: "offline",
+                lastChanged: "today, 23:30",
+              },
+            },
+            {
+              _id: item,
+              username: item,
+              avatar: "assets/imgs/doe.png",
+              status: {
+                state: "offline",
+                lastChanged: "today, 23:30",
+              },
+            },
+            // { _id: "arjun", username: "arjun" },
+          ],
+        },
+        ...this.rooms,
+      ];
+      this.showNewUsers = false;
+    },
   },
 };
 </script>
+<style >
+.auto {
+  margin: 0;
+}
+</style>
