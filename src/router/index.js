@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-// import HomeView from '../views/HomeView.vue'
+import HomeView from '../views/HomeView.vue'
 import store from "../store/index";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
@@ -10,11 +10,11 @@ const routes = [
     name: 'home',
     component: AboutViewVue,
   },
-  // {
-  //   path: "/",
-  //   name: "/",
-  //   redirect: "/dashboard",
-  // },
+  {
+    path: "/test",
+    name: "Test",
+    component: HomeView
+  },
   // {
   //   path: "/dashboard",
   //   name: "Dashboard",
@@ -46,7 +46,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   window.scrollTo(0, 0)
   // console.log(store.state.auth);
-  console.log(store.state.login,to.meta.auth);
+  console.log(store.state.login, to.meta.auth);
 
   // console.log(to, store);
   if (to.meta.auth && store.state.login) {
