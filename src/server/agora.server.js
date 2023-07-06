@@ -19,6 +19,9 @@ export default {
                 console.log(res);
             });
     },
+    logout() {
+        conn.close()
+    },
     agoraConnection() {
         return conn
     },
@@ -90,7 +93,181 @@ export default {
         };
         const data = await conn
             ?.getHistoryMessages(options)
+        console.log(data)
         return data
+
+    },
+    async sendMessage(uid, message,) {
+        this.handleLogin()
+        const option = {
+            chatType: "singleChat",
+            type: "txt",
+            to: uid,
+            msg: message,
+        };
+        const msg = AC.message.create(option);
+
+        const sendMessage = await conn.send(msg)
+
+        return sendMessage
+
+    },
+    formattedFiles(file) {
+        const formattedFiles = []
+
+        // files.forEach(file => {
+            const messageFile = {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                extension: file.extension || file.type,
+                url: file.url || file.localUrl
+            }
+
+            if (file.audio) {
+                messageFile.audio = true
+                messageFile.duration = file.duration
+            }
+
+            formattedFiles.push(messageFile)
+        // })
+
+        return formattedFiles
+    },
+    formatAgoraFiles(file) {
+        console.log(file)
+        const formattedFiles = []
+
+        // files.forEach(file => {
+            const messageFile = {
+                file_name: file?.ext?.file_name,
+                file_size: file?.ext?.file_size,
+                file_type: file.type,
+                extension: file?.ext?.file_type,
+                url: file.url || file.localUrl
+            }
+
+            if (file.audio) {
+                messageFile.audio = true
+                messageFile.duration = file?.ext?.file_duration
+            }
+
+            formattedFiles.push(messageFile)
+        // })
+
+        return formattedFiles
+    },
+
+    async sendImage(uid, file) {
+        console.log(uid)
+
+        // await files.forEach(
+            // file => {
+            console.log(file)
+            var allowType = {
+                jpg: true,
+                gif: true,
+                png: true,
+                bmp: true,
+            };
+            if (file.extension.toLowerCase() in allowType) {
+                var option = {
+                    // Set the message type.
+                    type: "img",
+                    file: file,
+                    ext: {
+                        // Set the image file length.
+                        file_size: file.size,
+                        file_type: file.extension,
+                        file_name:file.name,
+                        
+                        
+
+                    },
+                    // Set the username of the message receiver.
+                    to: uid,
+                    // Set the chat type.
+                    chatType: "singleChat",
+                    // Occurs when the image file fails to be uploaded.
+                    onFileUploadError: function () {
+                        // console.log("onFileUploadError");
+                    },
+                    // Reports the progress of uploading the image file.
+                    onFileUploadProgress: function () {
+                        // console.log(e);
+                    },
+                    // Occurs when the image file is successfully uploaded.
+                    onFileUploadComplete: function () {
+                        // console.log("onFileUploadComplete");
+                    },
+                };
+
+                var msg = AC.message.create(option);
+                conn.send(msg).then((res, err) => {
+                    console.log(res, err)
+                })
+
+            }
+
+        // }
+
+
+    },
+  async  sendAudio(uid, files) {
+       await  files.forEach(async file => {
+            if (file.audio) {
+                var allowType = {
+                    mp3: true,
+                    amr: true,
+                    wmv: true,
+                };
+                let stringToRemove = "audio/";
+
+                let fileType = file.type.replace(stringToRemove, "");
+                console.log(fileType);
+                if (fileType.toLowerCase() in allowType) {
+                    var option = {
+                        // Set the message type
+                        type: "audio",
+                        file: file,
+                        // Set the length of the audio file in seconds.
+                        length: "3",
+                        // Set the username of the message receiver.
+                        to: uid,
+                        // Set the chat type.
+                        chatType: "singleChat",
+                        // Occurs when the audio file fails to be uploaded.
+                        onFileUploadError: function () {
+                            console.log("onFileUploadError");
+                        },
+                        // Reports the progress of uploading the audio file.
+                        onFileUploadProgress: function (e) {
+                            console.log(e);
+                        },
+                        // Occurs when the audio file is successfully uploaded.
+                        onFileUploadComplete: function () {
+                            console.log("onFileUploadComplete");
+                        },
+                        ext: {
+                            file_type: fileType,
+                            file_name:file.name,
+                            file_duration: file.duration,
+                            file_size: file.size,
+                        },
+                    };
+                    // Create a voice message.
+                    var msg = AC.message.create(option);
+
+                    // Call send to send the voice message.
+                   await  conn.send(msg)
+                       
+                }
+
+            }
+        })
+
+
+
 
     },
 }

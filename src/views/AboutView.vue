@@ -84,41 +84,42 @@ register();
 export default {
   data() {
     return {
-      currentUserId: "1234",
+      currentUserId: "",
       rooms: [
         {
-          roomId: 1,
-          roomName: "Room 1",
+          roomId: localStorage.getItem("AgoraUserId"),
+          roomName: localStorage.getItem("AgoraUserId"),
           avatar: "assets/imgs/people.png",
-          unreadCount: 4,
+          // unreadCount: 4,
           index: 3,
           lastMessage: {
-            content: "Last message received",
-            senderId: 1234,
-            username: "John Doe",
-            timestamp: "10:20",
-            saved: true,
-            distributed: false,
-            seen: false,
-            new: true,
+            // content: "Last message received",
+            // senderId: 1234,
+            // username: "John Doe",
+            // timestamp: "10:20",
+            // saved: true,
+            // distributed: false,
+            // seen: false,
+            // new: true,
           },
           users: [
             {
-              _id: 1234,
-              username: "John Doe",
+              _id: localStorage.getItem("AgoraUserId"),
+              username: localStorage.getItem("AgoraUserId"),
               avatar: "assets/imgs/doe.png",
               status: {
                 state: "offline",
                 lastChanged: "today, 23:30",
               },
+              
             },
             {
-              _id: 4321,
-              username: "John Snow",
-              avatar: "assets/imgs/snow.png",
+              _id: "mn",
+              username: localStorage.getItem("AgoraUserId"),
+              avatar: "assets/imgs/doe.png",
               status: {
                 state: "offline",
-                lastChanged: "14 July, 20:00",
+                lastChanged: "today, 23:30",
               },
             },
           ],
@@ -138,33 +139,34 @@ export default {
     };
   },
   async mounted() {
-    console.log(AgoraServer);
+    this.currentUserId = localStorage.getItem("AgoraUserId");
+    AgoraServer.logout();
     await AgoraServer.handleLogin();
-    const data =await AgoraServer.retrieveIndividualChat("john")
-    console.log("data",data)
+    const data = await AgoraServer.retrieveIndividualChat("agora");
+    console.log("data", data);
     await AgoraServer.fetchRooms("john").then((res, err) => {
       if (res) {
         res?.users?.map((user) => {
           this.rooms.push({
             roomName: user,
             roomId: user,
-            unreadCount: 4,
-            index: 3,
+            // unreadCount: 4,
+            // index: 3,
             lastMessage: {
-            content: "Last message received",
-            senderId: 1234,
-            username: "John Doe",
-            timestamp: "10:20",
-            saved: true,
-            distributed: false,
-            seen: false,
-            new: true,
-          },
+              // content: "Last message received",
+              // senderId: 1234,
+              // username: "John Doe",
+              // timestamp: "10:20",
+              // saved: true,
+              // distributed: false,
+              // seen: false,
+              // new: true,
+            },
             avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
             users: [
               {
-                _id: 1234,
-                username: "John Doe",
+                _id: this.currentUserId,
+                username: this.currentUserId,
                 avatar: "assets/imgs/doe.png",
                 status: {
                   state: "offline",
@@ -196,111 +198,129 @@ export default {
       location.reload();
     },
     onFetchMessages({ room, options = {} }) {
-      this.messages=[]
       console.log(room, options);
       this.selectedRoom = room;
-      setTimeout(() => {
-        this.messages = [
-          {
-            _id: 7890,
-            indexId: 12092,
-            content: "Message 1",
-            senderId: 1234,
-            username: "John Doe",
-            avatar: "assets/imgs/doe.png",
-            date: "13 November",
-            timestamp: "10:20",
-            system: false,
-            saved: true,
-            distributed: true,
-            seen: true,
-            deleted: false,
-            disableActions: false,
-            disableReactions: false,
-            files: [
-              {
-                name: "My File",
-                size: 67351,
-                type: "png",
-                audio: true,
-                duration: 14.4,
-                url: "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
-                preview:
-                  "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
+      this.messages = [];
+      const messages = [];
+      AgoraServer.retrieveIndividualChat(room.roomId).then((res) => {
+        console.log(res);
+        res.messages.forEach((msg) => {
+          setTimeout(() => {
+            this.messages.push({
+              _id: msg.id,
+              indexId: msg.id,
+              content: msg.msg ? msg.msg : null,
+              senderId: msg.from,
+              username: msg.from,
+              avatar: "assets/imgs/doe.png",
+              date: new Date(msg.time),
+              timestamp:
+                new Date(msg.time).getHours() +
+                ":" +
+                new Date(msg.time).getMinutes(),
+              // system: false,
+              saved: true,
+              distributed: true,
+              // seen: true,
+              // deleted: false,
+              // disableActions: false,
+              // disableReactions: false,
+              files: msg.ext?.file_type
+                ? [
+                    {
+                      name: msg?.ext?.file_name,
+                      size: msg.ext?.file_size,
+                      type: msg.ext?.file_type,
+                      audio: true,
+                      duration: msg.ext?.duration,
+                      url: msg.thumb,
+                      // url: "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
+                      preview: msg.thumb,
+                      // "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
+                    },
+                  ]
+                : [],
+              reactions: {},
+              replyMessage: {
+                // content: "Reply Message",
+                // senderId: 4321,
+                // files: [
+                //   {
+                //     name: "My Replied File",
+                //     size: 67351,
+                //     type: "png",
+                //     audio: true,
+                //     duration: 14.4,
+                //     url: "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
+                //     preview:
+                //       "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
+                //   },
+                // ],
               },
-            ],
-            reactions: {
-              "😁": [
-                1234, // USER_ID
-                4321,
-              ],
-              "🥰": [1234],
-            },
-            replyMessage: {
-              content: "Reply Message",
-              senderId: 4321,
-              files: [
-                {
-                  name: "My Replied File",
-                  size: 67351,
-                  type: "png",
-                  audio: true,
-                  duration: 14.4,
-                  url: "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
-                  preview:
-                    "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
-                },
-              ],
-            },
+            });
+
+            this.messagesLoaded = true;
+            // this.rooms[0].lastMessage = null;
+            // this.rooms[0].unreadCount = null;
+          });
+        });
+      });
+      console.log("messages", messages);
+    },
+    async sendMessage(message) {
+      console.log("file", message);
+      if (message.content) {
+        await AgoraServer.sendMessage(message.roomId, message.content).then(
+          (res) => {
+            console.log(res);
+          }
+        );
+        this.messages = [
+          ...this.messages,
+          {
+            _id: this.messages.length,
+            content: message.content,
+            senderId: this.currentUserId,
+            files: null,
+            timestamp: new Date().toString().substring(16, 21),
+            date: new Date().toDateString(),
           },
         ];
-        this.messagesLoaded = true;
-        // this.rooms[0].lastMessage = null;
-        // this.rooms[0].unreadCount = null;
-      });
-    },
-    sendMessage(message) {
-      console.log(message);
-      this.messages = [
-        ...this.messages,
-        {
-          _id: this.messages.length,
-          content: message.content,
-          senderId: this.currentUserId,
-          files: message.files
-            ? [
-                // {
-                //   name: message.files[0].name,
-                //   size: 67351,
-                //   type: message.files[0].extension,
-                //   audio: true,
-                //   duration: 14.4,
-                //   // url: "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
-                //   url:message.files[0].localUrl,
-                //   preview:message.files[0].localUrl,
-                //     // "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
-                // },
-                {
-                  name: message.files[0].name,
-                  size: message.files[0].size,
-                  type: message.files[0].extension
-                    ? message.files[0].extension
-                    : "mp3",
-                  audio: message.files[0].audio
-                    ? message.files[0].extension
-                    : false,
-                  duration: message.files[0].duration,
-                  // url: "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
-                  url: message.files[0].localUrl,
-                  preview: message.files[0].localUrl,
-                  // "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
-                },
-              ]
-            : null,
-          timestamp: new Date().toString().substring(16, 21),
-          date: new Date().toDateString(),
-        },
-      ];
+      } else {
+        await message.files.forEach(async (file) => {
+          console.log(file);
+
+          if (file.audio) {
+            await AgoraServer.sendAudio("agora", message.files);
+            this.messages = [
+              ...this.messages,
+              {
+                _id: this.messages.length,
+                content: message.content,
+                senderId: this.currentUserId,
+                files: message.files ? AgoraServer.formattedFiles(file) : null,
+                timestamp: new Date().toString().substring(16, 21),
+                date: new Date().toDateString(),
+              },
+            ];
+          } else {
+            console.log(file);
+            await AgoraServer.sendImage("agora", file);
+            this.messages = [
+              ...this.messages,
+              {
+                _id: this.messages.length,
+                content: message.content,
+                senderId: this.currentUserId,
+                files: message.files ? AgoraServer.formattedFiles(file) : null,
+                timestamp: new Date().toString().substring(16, 21),
+                date: new Date().toDateString(),
+              },
+            ];
+          }
+        });
+      }
+      // console.log(message);
     },
   },
 };
