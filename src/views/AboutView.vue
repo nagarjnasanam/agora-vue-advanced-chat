@@ -135,7 +135,7 @@ export default {
       rooms: [
         {
           roomId: localStorage.getItem("AgoraUserId"),
-          roomName: localStorage.getItem("AgoraUserId"),
+          roomName: localStorage.getItem("AgoraUserId") + " (me)",
           avatar: "assets/imgs/people.png",
           // unreadCount: 4,
           index: 3,
@@ -151,7 +151,7 @@ export default {
           },
           users: [
             {
-              _id: localStorage.getItem("AgoraUserId"),
+              _id: localStorage.getItem("AgoraUserId") + "(you)",
               username: localStorage.getItem("AgoraUserId"),
               avatar: "assets/imgs/doe.png",
               status: {
