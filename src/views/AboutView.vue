@@ -313,7 +313,7 @@ export default {
       ],
       roomsLoaded: true,
       messagesLoaded: false,
-      loadingRooms: false,
+      loadingRooms: true,
       messages: [],
       roomActions: [
         { name: "inviteUser", title: "Invite User" },
@@ -407,6 +407,7 @@ export default {
         console.log(err);
       }
     });
+    this.loadingRooms=false
   },
   methods: {
     async logout() {
