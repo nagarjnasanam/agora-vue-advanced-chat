@@ -121,7 +121,7 @@ export default {
         console.log("login begin")
         axios
           .post(
-            "https://agora-auth.onrender.com//login",
+            "https://agora-auth.onrender.com/login",
             {
               account: loginData.userid,
               password: loginData.password,
