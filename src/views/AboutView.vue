@@ -82,6 +82,7 @@
               transition="dialog-top-transition"
               width="auto"
               v-model="showDialog"
+              persistent
             >
               <template v-slot:activator="{ props }">
                 <v-btn @click="makeCall()" color="primary" v-bind="props">
@@ -164,11 +165,7 @@
   </div>
                   </v-card-text>
 
-                  <v-card-actions class="justify-end">
-                    <v-btn variant="text" @click="isActive.value = false"
-                      >Close</v-btn
-                    >
-                  </v-card-actions>
+                 
                 </v-card>
               </template>
             </v-dialog>
