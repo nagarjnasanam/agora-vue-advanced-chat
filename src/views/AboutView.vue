@@ -956,7 +956,7 @@ export default {
     },
     async generateToken(channelName, uid) {
       return await axios.get(
-        `http://localhost:3040/tokens?channelName=${channelName}&uid=${uid}`,
+        `https://agora-rtm-rtc-tokens.onrender.com/tokens?channelName=${channelName}&uid=${uid}`,
         {
           headers: {
             "Content-Type": "application/json",

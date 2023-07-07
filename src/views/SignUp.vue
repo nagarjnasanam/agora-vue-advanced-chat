@@ -106,7 +106,7 @@ export default {
       ) {
         await axios
           .post(
-            "http://localhost:3006/register",
+            "https://agora-auth.onrender.com//register",
             {
               account: formData.username,
               nickname: formData.nickname,
