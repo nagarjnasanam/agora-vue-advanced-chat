@@ -618,7 +618,7 @@ export default {
       await this.placeCall(this.selectedRoom.roomId);
     },
     async fetchVideoCallingUsers() {
-      const data = await axios.get("http://localhost:3040/users", {
+      const data = await axios.get("https://agora-rtm-rtc-tokens.onrender.com/users", {
         headers: {
           "Content-Type": "application/json",
         },
