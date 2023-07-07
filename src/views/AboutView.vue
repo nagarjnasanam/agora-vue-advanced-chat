@@ -680,19 +680,26 @@ export default {
         data.on("RemoteInvitationCanceled", () => {
           console.log("RemoteInvitationCanceled: ");
           this.incomingCallNotification = "Call has been cancelled";
+          this.callAlertData=this.incomingCallNotification
+          this.incomingCall=false
           setTimeout(() => {
             this.incomingCall = false;
-          }, 5000);
+          this.showDialog=false
+
+          }, 3000);
         });
         data.on("RemoteInvitationAccepted", (data) => {
           console.log("REMOTE INVITATION ACCEPTED: ", data);
         });
         data.on("RemoteInvitationRefused", (data) => {
           console.log("REMOTE INVITATION REFUSED: ", data);
+          this.isCallingUser=false
           this.showDialog=false
         });
         data.on("RemoteInvitationFailure", (data) => {
           console.log("REMOTE INVITATION FAILURE: ", data);
+          this.isCallingUser=false
+          this.showDialog=false
         });
       });
 
@@ -817,16 +824,21 @@ export default {
 
           setTimeout(() => {
             this.isCallingUser = false;
-          }, 5000);
+          this.showDialog=false
+
+          }, 2000);
         });
         this.localInvitation.on("LocalInvitationRefused", (data) => {
           console.log("LOCAL INVITATION REFUSED: ", data);
+          this.isCallingUser=false
           this.callingUserNotification = `${calleeName} refused the call`;
           this.callAlertData=this.callingUserNotification
 
           setTimeout(() => {
             this.isCallingUser = false;
-          }, 5000);
+          this.showDialog=false
+
+          }, 2000);
         });
 
         this.localInvitation.on("LocalInvitationReceivedByPeer", (data) => {
