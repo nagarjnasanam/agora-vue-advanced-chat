@@ -92,7 +92,7 @@
                 <v-card>
                   <v-toolbar
                     color="primary"
-                    title="Opening from the top"
+                    :title="callAlertData"
                   ></v-toolbar>
                   <v-card-text>
                     <div class="about">
@@ -101,10 +101,10 @@
       
       <div class="row my-5" v-if="isCallingUser">
               <div class="col-12">
-                <p>{{ callingUserNotification }}</p>
+                <!-- <p>{{ callingUserNotification }}</p> -->
                 <button
                   type="button"
-                  class="btn btn-danger"
+                  class="btn btn btn-outline-danger"
                   @click="cancelCall()"
                 >
                   Cancel Call
@@ -115,7 +115,7 @@
             <div class="row my-5" v-if="incomingCall">
               <div class="col-12">
                 <!-- <p>Incoming Call From <strong>${ incomingCaller }</strong></p> -->
-                <p>{{ incomingCallNotification }}</p>
+                <!-- <p>{{ incomingCallNotification }}</p> -->
                 <div class="btn-group" role="group">
                   <button
                     type="button"
@@ -350,6 +350,7 @@ export default {
       remoteAudioTrack: null,
       uid: "agora",
       showDialog: false,
+      callAlertData:""
     };
   },
   async mounted() {
@@ -416,7 +417,9 @@ export default {
       await this.$store.dispatch("logOut");
       location.reload();
     },
-    onFetchMessages({ room, options = {} }) {
+    async onFetchMessages({ room, options = {} }) {
+    await this.initRtmInstance();
+
       console.log(room, options);
       this.selectedRoom = room;
       this.messages = [];
@@ -668,10 +671,13 @@ export default {
       });
       // Emitted when a Call Invitation is sent from Remote User
       this.rtmClient.on("RemoteInvitationReceived", (data) => {
+        // alert(`Incoming Call From ${data.callerId}`)
+        this.showDialog=true
         this.remoteInvitation = data;
         this.incomingCall = true;
         this.incomingCaller = data.callerId;
         this.incomingCallNotification = `Incoming Call From ${data.callerId}`;
+        this.callAlertData=`Incoming Call From ${data.callerId}`
 
         data.on("RemoteInvitationCanceled", () => {
           console.log("RemoteInvitationCanceled: ");
@@ -685,6 +691,7 @@ export default {
         });
         data.on("RemoteInvitationRefused", (data) => {
           console.log("REMOTE INVITATION REFUSED: ", data);
+          this.showDialog=false
         });
         data.on("RemoteInvitationFailure", (data) => {
           console.log("REMOTE INVITATION FAILURE: ", data);
@@ -734,11 +741,13 @@ export default {
 
       this.rtmChannelInstance.on("MemberLeft", (memberId) => {
         console.log("MemberLeft");
+       
         console.log("memberId: ", memberId);
         const leavingUserIndex = this.onlineUsers.findIndex(
           (member) => member === memberId
         );
         this.onlineUsers.splice(leavingUserIndex, 1);
+        
       });
 
       this.rtmChannelInstance.on("MemberCountUpdated", (data) => {
@@ -755,7 +764,8 @@ export default {
       this.isCallingUser = true;
 
       this.callingUserNotification = `Calling ${calleeName}...`;
-      alert(this.callingUserNotification)
+      // alert(this.callingUserNotification)
+      this.callAlertData=this.callingUserNotification
       const onlineStatus = await this.rtmClient.queryPeersOnlineStatus([
         calleeName,
       ]);
@@ -763,6 +773,8 @@ export default {
       if (!onlineStatus[calleeName]) {
         setTimeout(() => {
           this.callingUserNotification = `${calleeName} could not be reached`;
+          this.callAlertData=this.callingUserNotification
+
 
           setTimeout(() => {
             this.isCallingUser = false;
@@ -803,6 +815,8 @@ export default {
         this.localInvitation.on("LocalInvitationCanceled", (data) => {
           console.log("LOCAL INVITATION CANCELED: ", data);
           this.callingUserNotification = `${calleeName} cancelled the call`;
+          this.callAlertData='you cancled the call'
+
           setTimeout(() => {
             this.isCallingUser = false;
           }, 5000);
@@ -810,6 +824,8 @@ export default {
         this.localInvitation.on("LocalInvitationRefused", (data) => {
           console.log("LOCAL INVITATION REFUSED: ", data);
           this.callingUserNotification = `${calleeName} refused the call`;
+          this.callAlertData=this.callingUserNotification
+
           setTimeout(() => {
             this.isCallingUser = false;
           }, 5000);
@@ -822,6 +838,8 @@ export default {
         this.localInvitation.on("LocalInvitationFailure", (data) => {
           console.log("LOCAL INVITATION FAILURE: ", data);
           this.callingUserNotification = "Call failed. Try Again";
+          this.callAlertData=this.callingUserNotification
+
         });
 
         // set the channelId
@@ -856,6 +874,7 @@ export default {
       this.remoteInvitation.accept();
       this.incomingCall = false;
       this.callPlaced = true;
+      this.callAlertData="on call"
     },
     initializeRTCClient() {
       this.rtcClient = markRaw(
@@ -879,6 +898,7 @@ export default {
         await this.rtcClient.subscribe(user, mediaType).then((res, err) => {
           console.log(res, err);
         });
+        this.callAlertData="on call"
 
         // If the remote user publishes a video track.
         if (mediaType === "video") {
@@ -895,14 +915,16 @@ export default {
         }
       });
 
-      this.rtcClient.on("user-unpublished", (data) => {
+      this.rtcClient.on("user-unpublished", async(data) => {
         console.log("USER UNPUBLISHED: ", data);
-        // await this.endCall();
+        await this.endCall();
       });
     },
     declineCall() {
       this.remoteInvitation.refuse();
       this.incomingCall = false;
+      this.showDialog=false
+
     },
     async createLocalStream() {
       const [microphoneTrack, cameraTrack] =
@@ -921,6 +943,7 @@ export default {
       await this.rtcClient.unpublish();
       await this.rtcClient.leave();
       this.callPlaced = false;
+      this.showDialog=false
     },
     async handleAudioToggle() {
       if (this.mutedAudio) {
