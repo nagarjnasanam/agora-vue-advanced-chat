@@ -8,7 +8,11 @@
             <div class="row">
               <div class="col-md-7 pe-0">
                 <div class="form-left h-100 py-5 px-5">
-                  <form  class="row g-4" action="javascript:;" @submit="handleSignIn()">
+                  <form
+                    class="row g-4"
+                    action="javascript:;"
+                    @submit="handleSignIn()"
+                  >
                     <div class="col-12">
                       <label>Username<span class="text-danger">*</span></label>
                       <div class="input-group">
@@ -65,34 +69,32 @@
                         type="submit"
                         class="btn btn-primary px-4 float-end mt-4"
                       />
-                    
                     </div>
                   </form>
 
-                  <!-- <div class="col-12">
-                    <button
-                      @click="handleSignIn()"
-                      type="submit"
-                      class="btn btn-primary px-4 float-end mt-4"
-                    >
-                      login
+                  <div class="">
+                    <button type="submit" class="btn btn-danger">
+                      Don't have an account
+                      <router-link
+                        :to="{ name: 'SignUp' }"
+                        class=""
+                        >Sign In</router-link
+                      >
                     </button>
-                  </div> -->
+                  </div>
                 </div>
               </div>
               <div class="col-md-5 ps-0 d-none d-md-block">
                 <div
                   class="form-right h-100 bg-primary text-white text-center pt-5"
                 >
-                  <i class="bi bi-bootstrap"></i>
+                  <i class="bi bi-door-open-fill"></i>
                   <h2 class="fs-1">Welcome Back!!!</h2>
                 </div>
               </div>
             </div>
           </div>
-          <p class="text-end text-secondary mt-3">
-            Bootstrap 5 Login Page Design
-          </p>
+          <p class="text-end text-secondary mt-3">Agora Login</p>
         </div>
       </div>
     </div>
@@ -115,10 +117,10 @@ export default {
     const { dispatch } = useStore();
     const router = useRouter();
     const handleSignIn = () => {
-      console.log("login",loginData);
+      console.log("login", loginData);
 
       if (loginData.userid && loginData.password) {
-        console.log("login begin")
+        console.log("login begin");
         axios
           .post(
             "https://agora-auth.onrender.com/login",

@@ -1,11 +1,9 @@
 <template>
   <div class="wrapper">
     <div class="form-left">
-      <h2 class="text-uppercase">information</h2>
+      <h2 class="text-uppercase">Already Have an account</h2>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Et molestie ac
-        feugiat sed. Diam volutpat commodo.
+        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptatem voluptate dolore sapiente eos vero vitae, adipisci suscipit enim magnam. Architecto explicabo aperiam laboriosam hic ex incidunt, unde saepe consectetur deserunt.
       </p>
       <p class="text">
         <span>Sub Head:</span>
@@ -13,10 +11,16 @@
         Praesent elementum facilisis leo vel.
       </p>
       <div class="form-field">
-        <input type="submit" class="account" value="Have an Account?" />
+        <button>
+          <router-link
+            :to="{ name: 'SignIn' }"
+            class="text-danger text-gradient font-weight-bold"
+            >Sign In</router-link
+          >
+        </button>
       </div>
     </div>
-    <form class="form-right" action="javascript:;"  @submit="handleSignUp">
+    <form class="form-right" action="javascript:;" @submit="handleSignUp">
       <h2 class="text-uppercase">Registration form</h2>
       <div class="row">
         <div class="col-sm-6 mb-3">
@@ -78,7 +82,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 import { useRouter } from "vue-router";
 // import { useStore } from "vuex";
 import { reactive } from "vue";
@@ -134,7 +138,7 @@ export default {
     return {
       handleSignUp,
       formData,
-      myFunction    
+      myFunction,
     };
   },
 };
