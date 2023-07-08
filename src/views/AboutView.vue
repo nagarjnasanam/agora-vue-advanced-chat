@@ -779,11 +779,13 @@ export default {
         setTimeout(() => {
           this.callingUserNotification = `${calleeName} could not be reached`;
           this.callAlertData=this.callingUserNotification
+          this.isCallingUser=false
 
 
           setTimeout(() => {
             this.isCallingUser = false;
-          }, 5000);
+            this.showDialog=false
+          }, 3000);
         }, 5000);
       } else {
         // Create a channel/room name for the video call
