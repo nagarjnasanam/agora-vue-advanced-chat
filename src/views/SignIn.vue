@@ -78,7 +78,7 @@
                       <router-link
                         :to="{ name: 'SignUp' }"
                         class=""
-                        >Sign In</router-link
+                        >Sign Up</router-link
                       >
                     </button>
                   </div>
