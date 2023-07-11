@@ -108,7 +108,7 @@
                               class="btn btn btn-outline-danger"
                               @click="cancelCall()"
                             >
-                              Cancel Call
+                            <i class="bi bi-telephone-x"></i>
                             </button>
                           </div>
                         </div>
@@ -124,20 +124,23 @@
                                 data-dismiss="modal"
                                 @click="declineCall()"
                               >
-                                Decline
+                              <i class="bi bi-telephone-x-fill"></i>
                               </button>
                               <button
                                 type="button"
                                 class="btn btn-success ml-5"
                                 @click="acceptCall"
                               >
-                                Accept
+                              <i class="bi bi-telephone-inbound-fill"></i>
                               </button>
                             </div>
                           </div>
                         </div>
                         <section id="video-container" v-if="callPlaced">
-                          <div id="local-video" ref="localVideo"></div>
+                          <div  id="local-video" ref="localVideo">
+                         
+                          </div>
+                          
                           <div id="remote-video" ref="remoteVideo"></div>
 
                           <div class="action-btns">
@@ -145,22 +148,27 @@
                               type="button"
                               class="btn btn-info"
                               @click="handleAudioToggle()"
+                              
                             >
-                              {{ mutedAudio ? "Unmute" : "Mute" }}
+                            <i v-if="mutedAudio" class="bi bi-mic-mute"></i>
+                            <i v-else class="bi bi-mic-fill"></i>
+                            
                             </button>
                             <button
                               type="button"
                               class="btn btn-primary mx-4"
                               @click="handleVideoToggle()"
                             >
-                              {{ mutedVideo ? "ShowVideo" : "HideVideo" }}
+                            <!-- <i class="bi bi-camera-video-off-fill"></i> -->
+                            <i v-if="mutedVideo" class="bi bi-camera-video-off-fill"></i>
+                            <i v-else class="bi bi-camera-video-fill"></i>
                             </button>
                             <button
                               type="button"
                               class="btn btn-danger"
                               @click="endCall()"
                             >
-                              EndCall
+                            <i class="bi bi-telephone-x-fill"></i>
                             </button>
                           </div>
                         </section>
@@ -247,6 +255,20 @@ conn.addEventHandler("connection&message", {
       },
       // Occurs when a text message is received.
       onTextMessage: (message) => {
+        // const findUserIndex = this.users.findIndex(
+        //   (user) => user.index === message.from
+        // );
+        // this.users[findUserIndex].lastMessage={
+        //   content: "Last message received",
+        //     senderId: 1234,
+        //     username: "John Doe",
+        //     timestamp: "10:20",
+        //     saved: true,
+        //     distributed: false,
+        //     seen: false,
+        //     new: true,
+
+        // }
         console.log(message);
         alert(message.msg)
        
@@ -265,11 +287,15 @@ conn.addEventHandler("connection&message", {
       },
       onImageMessage: (message) => {
         console.log(message);
+        
         // alert(message)
       },
       onError: (error) => {
         console.log("on error", error);
       },
+      onReceivedMessage:(message)=>{
+        console.log(message)
+      }
     });
 
 
@@ -293,7 +319,7 @@ export default {
           roomName: localStorage.getItem("AgoraUserId") + " (me)",
           avatar: "assets/imgs/people.png",
           // unreadCount: 4,
-          index: 3,
+          index: localStorage.getItem("AgoraUserId"),
           lastMessage: {
             // content: "Last message received",
             // senderId: 1234,
@@ -391,7 +417,7 @@ export default {
             roomName: user,
             roomId: user,
             // unreadCount: 4,
-            // index: 3,
+            index: user,
             lastMessage: {
               // content: "Last message received",
               // senderId: 1234,
@@ -439,7 +465,7 @@ export default {
       location.reload();
     },
     async onFetchMessages({ room, options = {} }) {
-      // await this.initRtmInstance();
+      await this.initRtmInstance();
 
       console.log(room, options);
       this.selectedRoom = room;
@@ -656,7 +682,7 @@ export default {
           roomId: item,
           avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
           // unreadCount: 4,
-          // index: 3,
+          index: item,
           lastMessage: {
             // content: "Last message received",
             // senderId: 1234,
