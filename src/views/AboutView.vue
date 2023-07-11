@@ -72,7 +72,7 @@
     @delete-message="deleteMessage($event.detail[0])"
   >
     <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
-    <div slot="room-header-info"
+    <div  slot="room-header-info"
       class="d-flex bd-highlight"
       v-if="selectedRoom"
     >
@@ -230,36 +230,49 @@ import { markRaw } from "vue";
 const conn = new AC.connection({
   appKey: process.env.VUE_APP_KEY,
 });
+
 conn.addEventHandler("connection&message", {
-  onConnected: () => {
-    console.log("connected");
-  },
-  // Occurs when the app is disconnected from Agora Chat.
-  onDisconnected: () => {
-    // this.$store.dispatch("logOut");
-    location.reload();
-    this.handleLogin();
-  },
-  onTextMessage: (message) => {
-       alert("Message from: " + message.from + " Message: " + message.msg);
-  },
-  onTokenWillExpire: () => {
-    alert("Token is about to expire");
-  },
-  onTokenExpired: () => {
-    this.logout();
-    alert('"The token has expired"');
-  },
-  onImageMessage: (message) => {
-    console.log(message);
-  },
-  onAudioMessage: (message) => {
-    console.log(message);
-  },
-  onError: (error) => {
-    console.log("on error", error);
-  },
-});
+      // Occurs when the app is connected to Agora Chat.
+      onConnected: () => {
+        alert("conected")
+        
+      
+          console.log("Connect success !");
+      },
+
+      // Occurs when the app is disconnected from Agora Chat.
+      onDisconnected: () => {
+        // login()
+       console.log("Logout success !");
+      },
+      // Occurs when a text message is received.
+      onTextMessage: (message) => {
+        console.log(message);
+        alert(message.msg)
+       
+          console.log("Message from: " + message.from + " Message: " + message.msg);
+      },
+      // Occurs when the token is about to expire.
+      onTokenWillExpire: (params) => {
+        console.log(params)
+       
+      },
+      // Occurs when the token has expired.
+      onTokenExpired: (params) => {
+        console.log(params)
+
+      
+      },
+      onImageMessage: (message) => {
+        console.log(message);
+        // alert(message)
+      },
+      onError: (error) => {
+        console.log("on error", error);
+      },
+    });
+
+
 import { register } from "vue-advanced-chat";
 register();
 
@@ -269,6 +282,7 @@ register();
 export default {
   data() {
     return {
+      testMsg:"nn",
       theme: "dark",
       showNewUsers: false,
       newUsers: [],
@@ -366,10 +380,9 @@ export default {
     await AgoraServer.handleLogin();
     this.currentUserId = localStorage.getItem("AgoraUserId");
 
-    // await this.initRtmInstance();
+    await this.initRtmInstance();
     console.log(this.updatedOnlineStatus);
     await this.fetchVideoCallingUsers();
-
 
     await AgoraServer.fetchRooms("john").then((res, err) => {
       if (res) {
@@ -426,7 +439,7 @@ export default {
       location.reload();
     },
     async onFetchMessages({ room, options = {} }) {
-      await this.initRtmInstance();
+      // await this.initRtmInstance();
 
       console.log(room, options);
       this.selectedRoom = room;
@@ -555,37 +568,55 @@ export default {
       }
       // console.log(message);
     },
-    addNewChat() {
+    async addNewChat() {
       this.showNewUsers = true;
-      AgoraServer.fetchUsers().then((res) => {
-        console.log(res);
-        res?.data?.entities?.map((user) => {
-          console.log(user.username);
+      // AgoraServer.fetchUsers().then((res) => {
+      //   console.log(res);
+      //   res?.data?.entities?.map((user) => {
+      //     console.log(user.username);
+      //     const isItemPresent = this.rooms.some(
+      //       (item) => item.roomName === user.username
+      //     );
+      //     if (!isItemPresent && user.username !== this.currentUserId) {
+      //       // console.log("yes", user.username);
+      //       this.newUsers.push(user.username);
+      //     }
+      //   });
+      // });
+      const data = await axios.get(
+        "https://agora-rtm-rtc-tokens.onrender.com/users",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      data.data.users?.map((user) => {
+          console.log(user.account);
           const isItemPresent = this.rooms.some(
-            (item) => item.roomName === user.username
+            (item) => item.roomName === user.account
           );
-          if (!isItemPresent && user.username !== this.currentUserId) {
+          if (!isItemPresent && user.account !== this.currentUserId) {
             // console.log("yes", user.username);
-            this.newUsers.push(user.username);
+            this.newUsers.push(user.account);
           }
         });
-      });
     },
-   async deleteMessage(userId, messageId) {
-    console.log(userId,messageId)
-    let option = {
+    async deleteMessage(userId, messageId) {
+      console.log(userId, messageId);
+      let option = {
         mid: messageId,
         to: userId,
-        chatType:  "singleChat",
+        chatType: "singleChat",
       };
-     await conn.recallMessage(option).then((res,err)=>{
-      console.log(res,err)
-     })
-    // console.log(message)
-    //  await AgoraServer.deleteMessage(roomId, message);
+      await conn.recallMessage(option).then((res, err) => {
+        console.log(res, err);
+      });
+      // console.log(message)
+      //  await AgoraServer.deleteMessage(roomId, message);
       console.log("deleted");
     },
-   async messageActionHandler({ roomId, action, message }) {
+    async messageActionHandler({ roomId, action, message }) {
       console.log(roomId, message);
       switch (action.name) {
         case "select":
