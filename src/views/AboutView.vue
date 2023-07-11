@@ -241,7 +241,7 @@ conn.addEventHandler("connection&message", {
     this.handleLogin();
   },
   onTextMessage: (message) => {
-    console.log(message);
+       alert("Message from: " + message.from + " Message: " + message.msg);
   },
   onTokenWillExpire: () => {
     alert("Token is about to expire");
@@ -370,8 +370,7 @@ export default {
     console.log(this.updatedOnlineStatus);
     await this.fetchVideoCallingUsers();
 
-    const data = await AgoraServer.retrieveIndividualChat("agora");
-    console.log("data", data);
+
     await AgoraServer.fetchRooms("john").then((res, err) => {
       if (res) {
         res?.users?.map((user) => {
