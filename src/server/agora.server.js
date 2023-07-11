@@ -295,4 +295,29 @@ export default {
         }
         return data
     },
+    async deleteChat(uid) {
+        let options = {
+            // conversation ID: The conversation ID is the user ID of the peer user for one-to-one chat and the group ID for group chat.
+            channel: uid,
+            // Conversation type: (Default) `singleChat`: one-to-one chat; `groupChat`: group chat.
+            chatType: "singleChat",
+            // Whether to delete historical messages from the server with the conversation.
+            deleteRoam: true,
+        };
+        console.log(conn.deleteConversation(options))
+        return await conn.deleteConversation(options)
+
+    },
+    deleteMessage(uid, messageId) {
+        console.log(uid,messageId)
+        console.log(messageId.content)
+        let option = {
+            mid: messageId,
+            to: uid,
+            chatType: "singleChat",
+        };
+        return conn.recallMessage(option)
+
+    }
+
 }

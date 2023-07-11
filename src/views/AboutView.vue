@@ -59,12 +59,17 @@
     :rooms="JSON.stringify(rooms)"
     :messages="JSON.stringify(messages)"
     :room-actions="JSON.stringify(roomActions)"
+    :menu-actions="JSON.stringify(menuActions)"
+    :message-actions="JSON.stringify(messageActions)"
     :messages-loaded="messagesLoaded"
     :rooms-loaded="roomsLoaded"
     :loading-rooms="loadingRooms"
     @fetch-messages="onFetchMessages($event.detail[0])"
     @send-message="sendMessage($event.detail[0])"
     @add-room="addNewChat($event.detail[0])"
+    @message-action-handler="messageActionHandler($event.detail[0])"
+    @room-action-handler="roomActionsHandler($event.detail[0])"
+    @delete-message="deleteMessage($event.detail[0])"
   >
     <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
     <div slot="room-header-info"
@@ -91,81 +96,78 @@
               </template>
               <template v-slot:="{ isActive }">
                 <v-card>
-                  <v-toolbar
-                    color="primary"
-                    :title="callAlertData"
-                  ></v-toolbar>
+                  <v-toolbar color="primary" :title="callAlertData"></v-toolbar>
                   <v-card-text>
                     <div class="about">
-    
-    <div>
-      
-      <div class="row my-5" v-if="isCallingUser">
-              <div class="col-12">
-                <!-- <p>{{ callingUserNotification }}</p> -->
-                <button
-                  type="button"
-                  class="btn btn btn-outline-danger"
-                  @click="cancelCall()"
-                >
-                  Cancel Call
-                </button>
-              </div>
-            </div>
-            <!-- Incoming Call  -->
-            <div class="row my-5" v-if="incomingCall">
-              <div class="col-12">
-                <!-- <p>Incoming Call From <strong>${ incomingCaller }</strong></p> -->
-                <!-- <p>{{ incomingCallNotification }}</p> -->
-                <div class="btn-group" role="group">
-                  <button
-                    type="button"
-                    class="btn btn-danger"
-                    data-dismiss="modal"
-                    @click="declineCall()"
-                  >
-                    Decline
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-success ml-5"
-                    @click="acceptCall"
-                  >
-                    Accept
-                  </button>
-                </div>
-              </div>
-            </div>
-            <section id="video-container" v-if="callPlaced">
-            <div id="local-video" ref="localVideo"></div>
-            <div id="remote-video" ref="remoteVideo"></div>
+                      <div>
+                        <div class="row my-5" v-if="isCallingUser">
+                          <div class="col-12">
+                            <!-- <p>{{ callingUserNotification }}</p> -->
+                            <button
+                              type="button"
+                              class="btn btn btn-outline-danger"
+                              @click="cancelCall()"
+                            >
+                              Cancel Call
+                            </button>
+                          </div>
+                        </div>
+                        <!-- Incoming Call  -->
+                        <div class="row my-5" v-if="incomingCall">
+                          <div class="col-12">
+                            <!-- <p>Incoming Call From <strong>${ incomingCaller }</strong></p> -->
+                            <!-- <p>{{ incomingCallNotification }}</p> -->
+                            <div class="btn-group" role="group">
+                              <button
+                                type="button"
+                                class="btn btn-danger"
+                                data-dismiss="modal"
+                                @click="declineCall()"
+                              >
+                                Decline
+                              </button>
+                              <button
+                                type="button"
+                                class="btn btn-success ml-5"
+                                @click="acceptCall"
+                              >
+                                Accept
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <section id="video-container" v-if="callPlaced">
+                          <div id="local-video" ref="localVideo"></div>
+                          <div id="remote-video" ref="remoteVideo"></div>
 
-            <div class="action-btns">
-              <button
-                type="button"
-                class="btn btn-info"
-                @click="handleAudioToggle()"
-              >
-                {{ mutedAudio ? "Unmute" : "Mute" }}
-              </button>
-              <button
-                type="button"
-                class="btn btn-primary mx-4"
-                @click="handleVideoToggle()"
-              >
-                {{ mutedVideo ? "ShowVideo" : "HideVideo" }}
-              </button>
-              <button type="button" class="btn btn-danger" @click="endCall()">
-                EndCall
-              </button>
-            </div>
-          </section>
-            <!-- End of Incoming Call  -->
-    </div>
-  </div>
+                          <div class="action-btns">
+                            <button
+                              type="button"
+                              class="btn btn-info"
+                              @click="handleAudioToggle()"
+                            >
+                              {{ mutedAudio ? "Unmute" : "Mute" }}
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-primary mx-4"
+                              @click="handleVideoToggle()"
+                            >
+                              {{ mutedVideo ? "ShowVideo" : "HideVideo" }}
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-danger"
+                              @click="endCall()"
+                            >
+                              EndCall
+                            </button>
+                          </div>
+                        </section>
+                        <!-- End of Incoming Call  -->
+                      </div>
+                    </div>
                   </v-card-text>
-
-                 
                 </v-card>
               </template>
             </v-dialog>
@@ -315,10 +317,19 @@ export default {
       messagesLoaded: false,
       loadingRooms: true,
       messages: [],
+      messageActions: [
+        // { name: "select", title: "select" },
+        { name: "deleteMessage", title: "Delete Message" },
+      ],
       roomActions: [
         { name: "inviteUser", title: "Invite User" },
         { name: "removeUser", title: "Remove User" },
-        { name: "deleteRoom", title: "Delete Room" },
+        { name: "deleteChat", title: "Delete Chat" },
+      ],
+      menuActions: [
+        // { name: "inviteUser", title: "Invite User" },
+        // { name: "removeUser", title: "Remove User" },
+        { name: "deleteChat", title: "Delete Chat" },
       ],
       selectedRoom: null,
       /// video call data
@@ -347,7 +358,7 @@ export default {
       remoteAudioTrack: null,
       uid: "agora",
       showDialog: false,
-      callAlertData:""
+      callAlertData: "",
     };
   },
   async mounted() {
@@ -407,7 +418,7 @@ export default {
         console.log(err);
       }
     });
-    this.loadingRooms=false
+    this.loadingRooms = false;
   },
   methods: {
     async logout() {
@@ -416,7 +427,7 @@ export default {
       location.reload();
     },
     async onFetchMessages({ room, options = {} }) {
-    await this.initRtmInstance();
+      await this.initRtmInstance();
 
       console.log(room, options);
       this.selectedRoom = room;
@@ -525,18 +536,21 @@ export default {
             ];
           } else {
             console.log(file);
-            await AgoraServer.sendImage(message.roomId, file);
-            this.messages = [
-              ...this.messages,
-              {
-                _id: this.messages.length,
-                content: message.content,
-                senderId: this.currentUserId,
-                files: message.files ? AgoraServer.formattedFiles(file) : null,
-                timestamp: new Date().toString().substring(16, 21),
-                date: new Date().toDateString(),
-              },
-            ];
+            await AgoraServer.sendImage(message.roomId, file).then(() => {
+              this.messages = [
+                ...this.messages,
+                {
+                  _id: this.messages.length,
+                  content: message.content,
+                  senderId: this.currentUserId,
+                  files: message.files
+                    ? AgoraServer.formattedFiles(file)
+                    : null,
+                  timestamp: new Date().toString().substring(16, 21),
+                  date: new Date().toDateString(),
+                },
+              ];
+            });
           }
         });
       }
@@ -557,6 +571,46 @@ export default {
           }
         });
       });
+    },
+   async deleteMessage(userId, messageId) {
+    console.log(userId,messageId)
+    let option = {
+        mid: messageId,
+        to: userId,
+        chatType:  "singleChat",
+      };
+     await conn.recallMessage(option).then((res,err)=>{
+      console.log(res,err)
+     })
+    // console.log(message)
+    //  await AgoraServer.deleteMessage(roomId, message);
+      console.log("deleted");
+    },
+   async messageActionHandler({ roomId, action, message }) {
+      console.log(roomId, message);
+      switch (action.name) {
+        case "select":
+          console.log("selected");
+          // call a method to add a message to the favorite list
+          break;
+        case "delete":
+          await this.deleteMessage(roomId, message.mid);
+
+        // call a method to share the message with another user
+      }
+    },
+    roomActionsHandler({ roomId, action }) {
+      console.log(roomId, action);
+      switch (action.name) {
+        case "inviteUser":
+          break;
+        // call a method to invite a user to the room
+        case "deleteChat":
+          console.log("deleting");
+          AgoraServer.deleteChat(roomId);
+          break;
+        case "deleteRoom":
+      }
     },
     onSearchChannge(item) {
       console.log(item);
@@ -612,15 +666,18 @@ export default {
     async makeCall() {
       console.log("call");
       this.showDialog = true;
-      await this.initRtmInstance()
+      await this.initRtmInstance();
       await this.placeCall(this.selectedRoom.roomId);
     },
     async fetchVideoCallingUsers() {
-      const data = await axios.get("https://agora-rtm-rtc-tokens.onrender.com/users", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const data = await axios.get(
+        "https://agora-rtm-rtc-tokens.onrender.com/users",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (data.data.users) {
         console.log(data);
         this.videousers = data.data.users;
@@ -670,22 +727,21 @@ export default {
       // Emitted when a Call Invitation is sent from Remote User
       this.rtmClient.on("RemoteInvitationReceived", (data) => {
         // alert(`Incoming Call From ${data.callerId}`)
-        this.showDialog=true
+        this.showDialog = true;
         this.remoteInvitation = data;
         this.incomingCall = true;
         this.incomingCaller = data.callerId;
         this.incomingCallNotification = `Incoming Call From ${data.callerId}`;
-        this.callAlertData=`Incoming Call From ${data.callerId}`
+        this.callAlertData = `Incoming Call From ${data.callerId}`;
 
         data.on("RemoteInvitationCanceled", () => {
           console.log("RemoteInvitationCanceled: ");
           this.incomingCallNotification = "Call has been cancelled";
-          this.callAlertData=this.incomingCallNotification
-          this.incomingCall=false
+          this.callAlertData = this.incomingCallNotification;
+          this.incomingCall = false;
           setTimeout(() => {
             this.incomingCall = false;
-          this.showDialog=false
-
+            this.showDialog = false;
           }, 3000);
         });
         data.on("RemoteInvitationAccepted", (data) => {
@@ -693,13 +749,13 @@ export default {
         });
         data.on("RemoteInvitationRefused", (data) => {
           console.log("REMOTE INVITATION REFUSED: ", data);
-          this.isCallingUser=false
-          this.showDialog=false
+          this.isCallingUser = false;
+          this.showDialog = false;
         });
         data.on("RemoteInvitationFailure", (data) => {
           console.log("REMOTE INVITATION FAILURE: ", data);
-          this.isCallingUser=false
-          this.showDialog=false
+          this.isCallingUser = false;
+          this.showDialog = false;
         });
       });
 
@@ -715,7 +771,7 @@ export default {
       this.rtmClient.on("PeersOnlineStatusChanged", (data) => {
         this.updatedOnlineStatus = data;
         console.log("PeersOnlineStatusChanged", data);
-        console.log("sanam",this.updatedOnlineStatus)
+        console.log("sanam", this.updatedOnlineStatus);
       });
 
       // Create a channel and listen to messages
@@ -746,13 +802,12 @@ export default {
 
       this.rtmChannelInstance.on("MemberLeft", (memberId) => {
         console.log("MemberLeft");
-       
+
         console.log("memberId: ", memberId);
         const leavingUserIndex = this.onlineUsers.findIndex(
           (member) => member === memberId
         );
         this.onlineUsers.splice(leavingUserIndex, 1);
-        
       });
 
       this.rtmChannelInstance.on("MemberCountUpdated", (data) => {
@@ -770,7 +825,7 @@ export default {
 
       this.callingUserNotification = `Calling ${calleeName}...`;
       // alert(this.callingUserNotification)
-      this.callAlertData=this.callingUserNotification
+      this.callAlertData = this.callingUserNotification;
       const onlineStatus = await this.rtmClient.queryPeersOnlineStatus([
         calleeName,
       ]);
@@ -778,13 +833,12 @@ export default {
       if (!onlineStatus[calleeName]) {
         setTimeout(() => {
           this.callingUserNotification = `${calleeName} could not be reached`;
-          this.callAlertData=this.callingUserNotification
-          this.isCallingUser=false
-
+          this.callAlertData = this.callingUserNotification;
+          this.isCallingUser = false;
 
           setTimeout(() => {
             this.isCallingUser = false;
-            this.showDialog=false
+            this.showDialog = false;
           }, 3000);
         }, 5000);
       } else {
@@ -822,24 +876,22 @@ export default {
         this.localInvitation.on("LocalInvitationCanceled", (data) => {
           console.log("LOCAL INVITATION CANCELED: ", data);
           this.callingUserNotification = `${calleeName} cancelled the call`;
-          this.callAlertData='you cancled the call'
+          this.callAlertData = "you cancled the call";
 
           setTimeout(() => {
             this.isCallingUser = false;
-          this.showDialog=false
-
+            this.showDialog = false;
           }, 2000);
         });
         this.localInvitation.on("LocalInvitationRefused", (data) => {
           console.log("LOCAL INVITATION REFUSED: ", data);
-          this.isCallingUser=false
+          this.isCallingUser = false;
           this.callingUserNotification = `${calleeName} refused the call`;
-          this.callAlertData=this.callingUserNotification
+          this.callAlertData = this.callingUserNotification;
 
           setTimeout(() => {
             this.isCallingUser = false;
-          this.showDialog=false
-
+            this.showDialog = false;
           }, 2000);
         });
 
@@ -850,8 +902,7 @@ export default {
         this.localInvitation.on("LocalInvitationFailure", (data) => {
           console.log("LOCAL INVITATION FAILURE: ", data);
           this.callingUserNotification = "Call failed. Try Again";
-          this.callAlertData=this.callingUserNotification
-
+          this.callAlertData = this.callingUserNotification;
         });
 
         // set the channelId
@@ -886,7 +937,7 @@ export default {
       this.remoteInvitation.accept();
       this.incomingCall = false;
       this.callPlaced = true;
-      this.callAlertData="on call"
+      this.callAlertData = "on call";
     },
     initializeRTCClient() {
       this.rtcClient = markRaw(
@@ -910,7 +961,7 @@ export default {
         await this.rtcClient.subscribe(user, mediaType).then((res, err) => {
           console.log(res, err);
         });
-        this.callAlertData="on call"
+        this.callAlertData = "on call";
 
         // If the remote user publishes a video track.
         if (mediaType === "video") {
@@ -927,7 +978,7 @@ export default {
         }
       });
 
-      this.rtcClient.on("user-unpublished", async(data) => {
+      this.rtcClient.on("user-unpublished", async (data) => {
         console.log("USER UNPUBLISHED: ", data);
         await this.endCall();
       });
@@ -935,8 +986,7 @@ export default {
     declineCall() {
       this.remoteInvitation.refuse();
       this.incomingCall = false;
-      this.showDialog=false
-
+      this.showDialog = false;
     },
     async createLocalStream() {
       const [microphoneTrack, cameraTrack] =
@@ -955,7 +1005,7 @@ export default {
       await this.rtcClient.unpublish();
       await this.rtcClient.leave();
       this.callPlaced = false;
-      this.showDialog=false
+      this.showDialog = false;
     },
     async handleAudioToggle() {
       if (this.mutedAudio) {
