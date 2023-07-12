@@ -72,7 +72,7 @@
     @delete-message="deleteMessage($event.detail[0])"
   >
     <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
-    <div  slot="room-header-info"
+    <div    slot="room-header-info"
       class="d-flex bd-highlight"
       v-if="selectedRoom"
     >
@@ -108,7 +108,7 @@
                               class="btn btn btn-outline-danger"
                               @click="cancelCall()"
                             >
-                            <i class="bi bi-telephone-x"></i>
+                              <i class="bi bi-telephone-x"></i>
                             </button>
                           </div>
                         </div>
@@ -124,23 +124,21 @@
                                 data-dismiss="modal"
                                 @click="declineCall()"
                               >
-                              <i class="bi bi-telephone-x-fill"></i>
+                                <i class="bi bi-telephone-x-fill"></i>
                               </button>
                               <button
                                 type="button"
                                 class="btn btn-success ml-5"
                                 @click="acceptCall"
                               >
-                              <i class="bi bi-telephone-inbound-fill"></i>
+                                <i class="bi bi-telephone-inbound-fill"></i>
                               </button>
                             </div>
                           </div>
                         </div>
                         <section id="video-container" v-if="callPlaced">
-                          <div  id="local-video" ref="localVideo">
-                         
-                          </div>
-                          
+                          <div id="local-video" ref="localVideo"></div>
+
                           <div id="remote-video" ref="remoteVideo"></div>
 
                           <div class="action-btns">
@@ -148,27 +146,28 @@
                               type="button"
                               class="btn btn-info"
                               @click="handleAudioToggle()"
-                              
                             >
-                            <i v-if="mutedAudio" class="bi bi-mic-mute"></i>
-                            <i v-else class="bi bi-mic-fill"></i>
-                            
+                              <i v-if="mutedAudio" class="bi bi-mic-mute"></i>
+                              <i v-else class="bi bi-mic-fill"></i>
                             </button>
                             <button
                               type="button"
                               class="btn btn-primary mx-4"
                               @click="handleVideoToggle()"
                             >
-                            <!-- <i class="bi bi-camera-video-off-fill"></i> -->
-                            <i v-if="mutedVideo" class="bi bi-camera-video-off-fill"></i>
-                            <i v-else class="bi bi-camera-video-fill"></i>
+                              <!-- <i class="bi bi-camera-video-off-fill"></i> -->
+                              <i
+                                v-if="mutedVideo"
+                                class="bi bi-camera-video-off-fill"
+                              ></i>
+                              <i v-else class="bi bi-camera-video-fill"></i>
                             </button>
                             <button
                               type="button"
                               class="btn btn-danger"
                               @click="endCall()"
                             >
-                            <i class="bi bi-telephone-x-fill"></i>
+                              <i class="bi bi-telephone-x-fill"></i>
                             </button>
                           </div>
                         </section>
@@ -185,47 +184,48 @@
     </div>
     <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
     <!-- <div v-if="selectedRoom" slot="room-header-info">
-      <div class="">
-        {{ selectedRoom.roomName }} -->
+        <div class="">
+          {{ selectedRoom.roomName }} -->
 
     <!-- <div class=" position-absolute end-0"> -->
     <!-- <i class="bi bi-camera-video-fill"></i> -->
     <!-- <v-row justify="space-around">
-            <v-col cols="auto">
-              <v-dialog transition="dialog-top-transition" width="auto">
-                <template v-slot:activator="{ props }">
-                  <v-btn  color="primary" v-bind="props">
-                    <i class="bi bi-camera-video-fill"></i>
-                  </v-btn>
-                </template>
-                <template v-slot:default="{ isActive }">
-                  <v-card>
-                    <v-toolbar
-                      color="primary"
-                      title="Opening from the top"
-                    ></v-toolbar>
-                    <v-card-text>
-                      <div class="text-h2 pa-12">Hello world!</div>
-                    </v-card-text>
-                    <v-card-actions class="justify-end">
-                      <v-btn variant="text" @click="isActive.value = false"
-                        >Close</v-btn
-                      >
-                    </v-card-actions>
-                  </v-card>
-                </template>
-              </v-dialog>
-            </v-col>
-          </v-row> -->
+              <v-col cols="auto">
+                <v-dialog transition="dialog-top-transition" width="auto">
+                  <template v-slot:activator="{ props }">
+                    <v-btn  color="primary" v-bind="props">
+                      <i class="bi bi-camera-video-fill"></i>
+                    </v-btn>
+                  </template>
+                  <template v-slot:default="{ isActive }">
+                    <v-card>
+                      <v-toolbar
+                        color="primary"
+                        title="Opening from the top"
+                      ></v-toolbar>
+                      <v-card-text>
+                        <div class="text-h2 pa-12">Hello world!</div>
+                      </v-card-text>
+                      <v-card-actions class="justify-end">
+                        <v-btn variant="text" @click="isActive.value = false"
+                          >Close</v-btn
+                        >
+                      </v-card-actions>
+                    </v-card>
+                  </template>
+                </v-dialog>
+              </v-col>
+            </v-row> -->
     <!-- </div> -->
     <!-- </div>
-    </div> -->
+      </div> -->
     <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
 
     <!-- <template :slot="room-header">
-      <div>This is a new room header</div>
-    </template> -->
+        <div>This is a new room header</div>
+      </template> -->
   </vue-advanced-chat>
+  
 </template>
 
 <script>
@@ -235,69 +235,82 @@ import axios from "axios";
 import AgoraRTM from "agora-rtm-sdk";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import { markRaw } from "vue";
+import { useNotification } from "@kyvg/vue3-notification";
+
+const { notify } = useNotification();
 const conn = new AC.connection({
   appKey: process.env.VUE_APP_KEY,
 });
 
 conn.addEventHandler("connection&message", {
-      // Occurs when the app is connected to Agora Chat.
-      onConnected: () => {
-        alert("conected")
-        
-      
-          console.log("Connect success !");
-      },
+  // Occurs when the app is connected to Agora Chat.
+  onConnected: () => {
+    alert("conected");
+    document
+      .getElementById("log")
+      .appendChild(document.createElement("div"))
+      .append("Connect success !");
+  },
 
-      // Occurs when the app is disconnected from Agora Chat.
-      onDisconnected: () => {
-        // login()
-       console.log("Logout success !");
-      },
-      // Occurs when a text message is received.
-      onTextMessage: (message) => {
-        // const findUserIndex = this.users.findIndex(
-        //   (user) => user.index === message.from
-        // );
-        // this.users[findUserIndex].lastMessage={
-        //   content: "Last message received",
-        //     senderId: 1234,
-        //     username: "John Doe",
-        //     timestamp: "10:20",
-        //     saved: true,
-        //     distributed: false,
-        //     seen: false,
-        //     new: true,
-
-        // }
-        console.log(message);
-        alert(message.msg)
-       
-          console.log("Message from: " + message.from + " Message: " + message.msg);
-      },
-      // Occurs when the token is about to expire.
-      onTokenWillExpire: (params) => {
-        console.log(params)
-       
-      },
-      // Occurs when the token has expired.
-      onTokenExpired: (params) => {
-        console.log(params)
-
-      
-      },
-      onImageMessage: (message) => {
-        console.log(message);
-        
-        // alert(message)
-      },
-      onError: (error) => {
-        console.log("on error", error);
-      },
-      onReceivedMessage:(message)=>{
-        console.log(message)
-      }
+  // Occurs when the app is disconnected from Agora Chat.
+  onDisconnected: () => {
+    // login()
+    document
+      .getElementById("log")
+      .appendChild(document.createElement("div"))
+      .append("Logout success !");
+    // this.login();
+  },
+  // Occurs when a text message is received.
+  onTextMessage: (message) => {
+    console.log(message);
+    // alert("Message from: " + message.from + " Message: " + message.msg);
+    if (message.to === localStorage.getItem("AgoraUserId")) {
+      notify({
+        title: "Message from: " + message.from + " Message: " + message.msg,
+      });
+    document
+      .getElementById("log")
+      .appendChild(document.createElement("div"))
+      .append("Message from: " + message.from + " Message: " + message.msg);
+  }},
+  onAudioMessage: (message) => {
+    // alert("Message from: " + message.from + "sent a voice message");
+    notify({
+      title: "Message from: " + message.from + "sent a voice message",
     });
-
+  },
+  // Occurs when the token is about to expire.
+  onTokenWillExpire: (params) => {
+    console.log(params);
+    document
+      .getElementById("log")
+      .appendChild(document.createElement("div"))
+      .append("Token is about to expire");
+  },
+  // Occurs when the token has expired.
+  onTokenExpired: (params) => {
+    console.log(params);
+    document
+      .getElementById("log")
+      .appendChild(document.createElement("div"))
+      .append("The token has expired");
+  },
+  onImageMessage: (message) => {
+    console.log(message);
+    // alert("Message from: " + message.from + " sent an image ")
+    notify({
+      title: "Message from: " + message.from + " sent an image ",
+    });
+  },
+  onError: (error) => {
+    console.log("on error", error);
+  },
+  onReceivedMessage: function (message) {
+    console.log(message);
+    alert(message);
+  },
+});
 
 import { register } from "vue-advanced-chat";
 register();
@@ -308,7 +321,7 @@ register();
 export default {
   data() {
     return {
-      testMsg:"nn",
+      testMsg: "nn",
       theme: "dark",
       showNewUsers: false,
       newUsers: [],
@@ -404,13 +417,27 @@ export default {
   async mounted() {
     AgoraServer.logout();
     await AgoraServer.handleLogin();
+    var id = localStorage.getItem("AgoraUserId");
+    var tkn = localStorage.getItem("AgoraToken");
+    // alert(id);
+    // alert(tkn);
+    await conn
+      .open({
+        user: id,
+        agoraToken: tkn,
+      })
+      .then((res) => {
+        localStorage.setItem("agoraUserId", this.currentUserId);
+        localStorage.setItem("agoraToken", this.token);
+        console.log(res);
+      });
     this.currentUserId = localStorage.getItem("AgoraUserId");
 
     await this.initRtmInstance();
     console.log(this.updatedOnlineStatus);
     await this.fetchVideoCallingUsers();
 
-    await AgoraServer.fetchRooms("john").then((res, err) => {
+    await AgoraServer.fetchRooms(this.currentUserId).then((res, err) => {
       if (res) {
         res?.users?.map((user) => {
           this.rooms.push({
@@ -431,21 +458,21 @@ export default {
             avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
             users: [
               {
-                _id: this.currentUserId,
-                username: this.currentUserId,
-                avatar: "assets/imgs/doe.png",
-                status: {
-                  state: "offline",
-                  lastChanged: "today, 23:30",
-                },
-              },
-              {
                 _id: user,
                 username: user,
                 avatar: "assets/imgs/snow.png",
                 status: {
                   state: "offline",
                   lastChanged: "14 July, 20:00",
+                },
+              },
+              {
+                _id: this.currentUserId,
+                username: this.currentUserId,
+                avatar: "assets/imgs/doe.png",
+                status: {
+                  state: "offline",
+                  lastChanged: "today, 23:30",
                 },
               },
             ],
@@ -459,6 +486,7 @@ export default {
     this.loadingRooms = false;
   },
   methods: {
+    
     async logout() {
       console.log("logout", this.$store);
       await this.$store.dispatch("logOut");
@@ -618,15 +646,15 @@ export default {
         }
       );
       data.data.users?.map((user) => {
-          console.log(user.account);
-          const isItemPresent = this.rooms.some(
-            (item) => item.roomName === user.account
-          );
-          if (!isItemPresent && user.account !== this.currentUserId) {
-            // console.log("yes", user.username);
-            this.newUsers.push(user.account);
-          }
-        });
+        console.log(user.account);
+        const isItemPresent = this.rooms.some(
+          (item) => item.roomName === user.account
+        );
+        if (!isItemPresent && user.account !== this.currentUserId) {
+          // console.log("yes", user.username);
+          this.newUsers.push(user.account);
+        }
+      });
     },
     async deleteMessage(userId, messageId) {
       console.log(userId, messageId);

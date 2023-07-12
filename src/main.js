@@ -16,8 +16,10 @@ const vuetify = createVuetify({
     components,
     directives,
 })
+import Notifications from '@kyvg/vue3-notification'
 const app = createApp(App);
 app.use(vuetify)
+app.use(Notifications)
 app.use(store)
 app.use(router)
 app.mount('#app')
