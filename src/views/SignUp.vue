@@ -1,10 +1,9 @@
 <template>
   <div class="wrapper">
+    <a-spin :spinning="formData.loader">
     <div class="form-left">
-      <h2 class="text-uppercase">Already Have an account</h2>
-      <p>
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptatem voluptate dolore sapiente eos vero vitae, adipisci suscipit enim magnam. Architecto explicabo aperiam laboriosam hic ex incidunt, unde saepe consectetur deserunt.
-      </p>
+     
+     
       <p class="text">
         <span>Sub Head:</span>
         Vitae auctor eu augudsf ut. Malesuada nunc vel risus commodo viverra.
@@ -20,64 +19,73 @@
         </button>
       </div>
     </div>
-    <form class="form-right" action="javascript:;" @submit="handleSignUp">
-      <h2 class="text-uppercase">Registration form</h2>
-      <div class="row">
-        <div class="col-sm-6 mb-3">
-          <label>Username</label>
-          <input
-            type="text"
-            name="first_name"
-            id="first_name"
-            class="input-field"
-            v-model="formData.username"
-          />
-        </div>
-        <div class="col-sm-6 mb-3">
-          <label>Nickname</label>
-          <input
-            type="text"
-            name="last_name"
-            id="last_name"
-            class="input-field"
-            v-model="formData.nickname"
-          />
-        </div>
-      </div>
+    
+      <form class="form-right" action="javascript:;" @submit="handleSignUp">
+        <h2 class="text-uppercase">Registration form</h2>
+        <div class="row">
+          <div class="col-sm-6 mb-3">
+            <label>Username</label>
+            <input
+              type="text"
+              name="first_name"
+              id="first_name"
+              class="input-field"
+              v-model="formData.username"
+              placeholder="enter username"
+            />
+          </div>
+          <div class="col-sm-6 mb-3">
+            <label>Nickname</label>
+            <input
+              type="text"
+              name="last_name"
+              id="last_name"
+              class="input-field"
+              placeholder="enter nickname"
 
-      <div class="row">
-        <div class="col-sm-6 mb-3">
-          <label>Password</label>
-          <input
-            type="password"
-            name="pwd"
-            id="pwd"
-            class="input-field"
-            v-model="formData.password"
-          />
+              v-model="formData.nickname"
+            />
+          </div>
         </div>
-        <div class="col-sm-6 mb-3">
-          <label>Repeat Password</label>
-          <input
-            type="password"
-            name="cpwd"
-            id="cpwd"
-            class="input-field"
-            v-model="formData.cPassword"
-          />
-        </div>
-      </div>
 
-      <div class="form-field">
-        <input
-          type="submit"
-          value="Register"
-          class="register"
-          name="register"
-        />
-        <!-- <button @click="handleSignUp()" class="register">Register</button> -->
-      </div>
-    </form>
+        <div class="row">
+          <div class="col-sm-6 mb-3">
+            <label>Password</label>
+            <input
+              type="password"
+              name="pwd"
+              id="pwd"
+              class="input-field"
+              placeholder="enter password"
+
+              v-model="formData.password"
+            />
+          </div>
+          <div class="col-sm-6 mb-3">
+            <label>Repeat Password</label>
+            <input
+              type="password"
+              name="cpwd"
+              id="cpwd"
+              class="input-field"
+              placeholder="confirm password"
+
+              v-model="formData.cPassword"
+            />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <input
+            type="submit"
+            value="Register"
+            class="register"
+            name="register"
+          />
+          <!-- <button @click="handleSignUp()" class="register">Register</button> -->
+        </div>
+      </form>
+    </a-spin>
   </div>
 </template>
 
@@ -95,10 +103,11 @@ export default {
     const router = useRouter();
 
     const formData = reactive({
-      username: "john",
-      password: "123",
-      nickname: "vuejs",
-      cPassword: "vuejs",
+      username: "",
+      password: "",
+      nickname: "",
+      cPassword: "",
+      loader: false,
     });
     const handleSignUp = async () => {
       console.log("register");
@@ -108,6 +117,8 @@ export default {
         formData.password &&
         formData.password === formData.cPassword
       ) {
+      formData.loader = true;
+
         await axios
           .post(
             "https://agora-auth.onrender.com/register",
@@ -124,6 +135,8 @@ export default {
           )
           .then((res) => {
             console.log(res);
+            formData.loader = false;
+
             if (res.data) {
               console.log("signup success");
               router.push("/sign-in");
@@ -131,6 +144,8 @@ export default {
           })
           .catch((error) => {
             console.log(error);
+            formData.loader = false;
+
             alert(error.response.data.data.error);
           });
       }

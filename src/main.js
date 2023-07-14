@@ -17,8 +17,11 @@ const vuetify = createVuetify({
     directives,
 })
 import Notifications from '@kyvg/vue3-notification'
+import Antd from "ant-design-vue";
+// import "ant-design-vue/dist/antd.css";
 const app = createApp(App);
 app.use(vuetify)
+app.use(Antd)
 app.use(Notifications)
 app.use(store)
 app.use(router)

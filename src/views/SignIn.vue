@@ -4,6 +4,7 @@
       <div class="row">
         <div class="col-lg-10 offset-lg-1">
           <h3 class="mb-3">Login Now</h3>
+          <a-spin :spinning=loginData.loader>
           <div class="bg-white shadow rounded">
             <div class="row">
               <div class="col-md-7 pe-0">
@@ -94,7 +95,7 @@
               </div>
             </div>
           </div>
-          <p class="text-end text-secondary mt-3">Agora Login</p>
+          </a-spin>
         </div>
       </div>
     </div>
@@ -113,6 +114,7 @@ export default {
     const loginData = reactive({
       userid: "",
       password: "",
+      loader:false
     });
     const { dispatch } = useStore();
     const router = useRouter();
@@ -121,6 +123,7 @@ export default {
 
       if (loginData.userid && loginData.password) {
         console.log("login begin");
+        loginData.loader=true
         axios
           .post(
             "https://agora-auth.onrender.com/login",
@@ -134,6 +137,8 @@ export default {
           )
           .then((res) => {
             console.log(res);
+        loginData.loader=false
+
             localStorage.setItem("AgoraUserId", res.data.chatUsername);
             localStorage.setItem("AgoraToken", res.data.accessToken);
             localStorage.setItem("AgoraAPPToken", res.data.appToken);
@@ -142,6 +147,8 @@ export default {
             router.push("/");
           })
           .catch((error) => {
+        loginData.loader=false
+
             console.log(error.response.data.message);
             alert(error.response.data.message);
           });
