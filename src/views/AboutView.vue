@@ -70,9 +70,10 @@
     @message-action-handler="messageActionHandler($event.detail[0])"
     @room-action-handler="roomActionsHandler($event.detail[0])"
     @delete-message="deleteMessage($event.detail[0])"
+    :text-messages="JSON.stringify(textMessages)"
   >
     <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
-    <div slot="room-header-info"
+    <div  slot="room-header-info"
       class="d-flex bd-highlight"
       v-if="selectedRoom"
     >
@@ -140,9 +141,10 @@
                           <div class="ratio ratio-16x9">
                             <div id="local-video" ref="localVideo">local</div>
 
-<div id="remote-video"   ref="remoteVideo"> remote</div>
+                            <div id="remote-video" ref="remoteVideo">
+                              remote
+                            </div>
                           </div>
-                        
 
                           <div class="action-btns">
                             <button
@@ -558,6 +560,20 @@ register();
 export default {
   data() {
     return {
+      textMessages: {
+        ROOMS_EMPTY: "No Rooms",
+        ROOM_EMPTY: "NO messages",
+        NEW_MESSAGES: "New message",
+        MESSAGE_DELETED: "message deleted",
+        MESSAGES_EMPTY: "message empty",
+        CONVERSATION_STARTED: "conversation started on :",
+        TYPE_MESSAGE: "type message",
+        SEARCH: "search user",
+        IS_ONLINE: "online",
+        LAST_SEEN: "last seen ",
+        IS_TYPING: "typing",
+        CANCEL_SELECT_MESSAGE: "Annuler Sélection",
+      },
       testMsg: "THOR",
       theme: "dark",
       showNewUsers: false,
@@ -611,9 +627,7 @@ export default {
         // { name: "select", title: "select" },
         { name: "deleteMessage", title: "Delete Message" },
       ],
-      roomActions: [
-        { name: "deleteChat", title: "Delete Chat" },
-      ],
+      roomActions: [{ name: "deleteChat", title: "Delete Chat" }],
       menuActions: [
         // { name: "inviteUser", title: "Invite User" },
         // { name: "removeUser", title: "Remove User" },
@@ -828,51 +842,57 @@ export default {
         await AgoraServer.sendMessage(message.roomId, message.content).then(
           (res) => {
             console.log(res);
+            this.messages = [
+              ...this.messages,
+              {
+                _id: res.serverMsgId,
+                content: message.content,
+                senderId: this.currentUserId,
+                files: null,
+                // saved: true,
+                distributed: true,
+                //   seen: true,
+                //   deleted: false,
+                timestamp: new Date().toString().substring(16, 21),
+                date: new Date().toDateString(),
+              },
+            ];
           }
         );
-        this.messages = [
-          ...this.messages,
-          {
-            _id: this.messages.length,
-            content: message.content,
-            senderId: this.currentUserId,
-            files: null,
-            // saved: true,
-            distributed: true,
-            //   seen: true,
-            //   deleted: false,
-            timestamp: new Date().toString().substring(16, 21),
-            date: new Date().toDateString(),
-          },
-        ];
       } else {
         await message.files.forEach(async (file) => {
           console.log(file);
 
           if (file.audio) {
-            await AgoraServer.sendAudio(message.roomId, message.files);
-            this.messages = [
-              ...this.messages,
-              {
-                _id: this.messages.length,
-                content: message.content,
-                senderId: this.currentUserId,
-                files: message.files ? AgoraServer.formattedFiles(file) : null,
-                timestamp: new Date().toString().substring(16, 21),
-                date: new Date().toDateString(),
-                saved: true,
-                // distributed: true,
-                seen: true,
-                deleted: false,
-              },
-            ];
+            await AgoraServer.sendAudio(message.roomId, file).then(
+              (res) => {
+                console.log(res);
+                this.messages = [
+                  ...this.messages,
+                  {
+                    _id: res.serverMsgId,
+                    content: message.content,
+                    senderId: this.currentUserId,
+                    files: message.files
+                      ? AgoraServer.formattedFiles(file)
+                      : null,
+                    timestamp: new Date().toString().substring(16, 21),
+                    date: new Date().toDateString(),
+                    saved: true,
+                    // distributed: true,
+                    seen: true,
+                    deleted: false,
+                  },
+                ];
+              }
+            );
           } else {
             console.log(file);
-            await AgoraServer.sendImage(message.roomId, file).then(() => {
+            await AgoraServer.sendImage(message.roomId, file).then((res) => {
               this.messages = [
                 ...this.messages,
                 {
-                  _id: this.messages.length,
+                  _id: res.serverMsgId,
                   content: message.content,
                   senderId: this.currentUserId,
                   files: message.files
@@ -927,17 +947,32 @@ export default {
       });
     },
     async deleteMessage(data) {
-      console.log("deleting")
+      console.log("deleting");
       console.log(data.message);
-      console.log(data.message.username)
+      console.log(data.message.username, data.message.senderId);
       let option = {
         mid: data.message._id,
-        to: data.message.username,
+        to: data.message.username || data.message.senderId,
         chatType: "singleChat",
       };
-      await conn.recallMessage(option).then((res, err) => {
-        console.log(res, err);
+      await conn.recallMessage(option).then((res) => {
+        console.log(res);
+        if (res) {
+          var Index = this.messages.findIndex(
+            (msg) => msg.id === data.message._id
+          );
+          notify({
+        title: "Message deleted",
       });
+          this.messages.splice(Index, 1);
+        }
+      }).catch(err=>{
+         notify({
+        title: err.data.message,
+      });
+        console.log(err)
+       
+      })
       // console.log(message)
       //  await AgoraServer.deleteMessage(roomId, message);
       console.log("deleted");
@@ -950,7 +985,7 @@ export default {
           // call a method to add a message to the favorite list
           break;
         case "delete":
-          // await this.deleteMessage(roomId, message.mid);
+        // await this.deleteMessage(roomId, message.mid);
 
         // call a method to share the message with another user
       }
@@ -965,7 +1000,7 @@ export default {
           console.log("deleting");
           AgoraServer.deleteChat(roomId).then(() => {
             var Index = this.rooms.findIndex((user) => user.index === roomId);
-            this.rooms.splice(Index,1)
+            this.rooms.splice(Index, 1);
           });
           break;
         case "deleteRoom":
@@ -1023,7 +1058,7 @@ export default {
       this.showNewUsers = false;
     },
     async makeCall() {
-      this.callAlertData=""
+      this.callAlertData = "";
       console.log("call");
       this.showDialog = true;
       await this.initRtmInstance();
@@ -1364,8 +1399,8 @@ export default {
       this.localVideoTrack.removeAllListeners();
       await this.rtcClient.unpublish();
       await this.rtcClient.leave();
-      this.mutedAudio=false
-      this.mutedVideo=false
+      this.mutedAudio = false;
+      this.mutedVideo = false;
       this.callPlaced = false;
       this.showDialog = false;
     },
@@ -1455,6 +1490,6 @@ export default {
   flex-wrap: wrap;
 }
 .bgimg {
-    background-image: url('../assets/logo.png');
+  background-image: url("../assets/logo.png");
 }
 </style>

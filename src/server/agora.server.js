@@ -161,6 +161,7 @@ export default {
 
     async sendImage(uid, file) {
         console.log(uid)
+        var data;
 
         // await files.forEach(
         // file => {
@@ -204,18 +205,19 @@ export default {
             };
 
             var msg = AC.message.create(option);
-            conn.send(msg).then((res, err) => {
-                console.log(res, err)
-            })
+            data = await conn.send(msg)
 
         }
+        return data
+
 
         // }
 
 
     },
-    async sendAudio(uid, files) {
-        await files.forEach(async file => {
+    async sendAudio(uid, file) {
+        var data
+        // await files.forEach(async file => {
             if (file.audio) {
                 var allowType = {
                     mp3: true,
@@ -260,12 +262,14 @@ export default {
                     var msg = AC.message.create(option);
 
                     // Call send to send the voice message.
-                    await conn.send(msg)
+                  data =   await conn.send(msg)
 
                 }
 
             }
-        })
+        // })
+
+        return data
 
 
 
