@@ -72,7 +72,7 @@
     @delete-message="deleteMessage($event.detail[0])"
   >
     <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
-    <div    slot="room-header-info"
+    <div  slot="room-header-info"
       class="d-flex bd-highlight"
       v-if="selectedRoom"
     >
@@ -225,10 +225,10 @@
         <div>This is a new room header</div>
       </template> -->
   </vue-advanced-chat>
-  
 </template>
 
 <script>
+var jsInstance = {}
 import AgoraServer from "../server/agora.server";
 import AC from "agora-chat";
 import axios from "axios";
@@ -236,7 +236,6 @@ import AgoraRTM from "agora-rtm-sdk";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import { markRaw } from "vue";
 import { useNotification } from "@kyvg/vue3-notification";
-
 const { notify } = useNotification();
 const conn = new AC.connection({
   appKey: process.env.VUE_APP_KEY,
@@ -263,17 +262,56 @@ conn.addEventHandler("connection&message", {
   },
   // Occurs when a text message is received.
   onTextMessage: (message) => {
+    // alert(message.msg);
+    // AgoraServer.fetchRooms("john").then(res=>{
+    //   console.log(res)
+    // })
+    // console.log(jsInstance.testMsg)
+    // alert(jsInstance.testMsg)
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    // console.log(this)
+
+  //  jsInstance.findUserIndex(message.from)
+    
     console.log(message);
+    
+
     // alert("Message from: " + message.from + " Message: " + message.msg);
     if (message.to === localStorage.getItem("AgoraUserId")) {
+    var Index = jsInstance.rooms.findIndex((user) => user.index === message.from);
+    alert(Index)
+     jsInstance.rooms[Index].lastMessage={
+            content: message.msg,
+              senderId: message.from,
+              username:  message.from,
+              timestamp: "10:20",
+              saved: true,
+              distributed: false,
+              seen: false,
+              new: true,
+  
+          }
+          if(jsInstance.selectedRoom.roomName === message.from){
+            jsInstance.messages.push({
+              
+            _id: message.from,
+            content: message.msg,
+            senderId: message.from,
+            files: null,
+            timestamp: new Date().toString().substring(16, 21),
+            date: new Date().toDateString(),
+          
+
+            })
+          }
+
       notify({
-        title: "Message from: " + message.from + " Message: " + message.msg,
+        title:   "Message from: " +  message.from +" Message: " +
+          message.msg 
       });
-    document
-      .getElementById("log")
-      .appendChild(document.createElement("div"))
-      .append("Message from: " + message.from + " Message: " + message.msg);
-  }},
+      
+    }
+  },
   onAudioMessage: (message) => {
     // alert("Message from: " + message.from + "sent a voice message");
     notify({
@@ -298,6 +336,7 @@ conn.addEventHandler("connection&message", {
   },
   onImageMessage: (message) => {
     console.log(message);
+    console.log(this)
     // alert("Message from: " + message.from + " sent an image ")
     notify({
       title: "Message from: " + message.from + " sent an image ",
@@ -306,11 +345,11 @@ conn.addEventHandler("connection&message", {
   onError: (error) => {
     console.log("on error", error);
   },
-  onReceivedMessage: function (message) {
-    console.log(message);
-    alert(message);
+  onReceivedMessage: function () {
+    // alert(message);
   },
 });
+
 
 import { register } from "vue-advanced-chat";
 register();
@@ -321,7 +360,7 @@ register();
 export default {
   data() {
     return {
-      testMsg: "nn",
+      testMsg: "THOR",
       theme: "dark",
       showNewUsers: false,
       newUsers: [],
@@ -484,9 +523,17 @@ export default {
       }
     });
     this.loadingRooms = false;
+    // assigning vue instance to javascript variable
+    jsInstance=this
+    console.log(jsInstance)
   },
   methods: {
-    
+    findUserIndex(from) {
+      var Index = this.rooms.findIndex((user) => user.index === from);
+      alert(Index)
+      console.log(Index)
+    },
+
     async logout() {
       console.log("logout", this.$store);
       await this.$store.dispatch("logOut");
