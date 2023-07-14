@@ -288,7 +288,7 @@ conn.addEventHandler("connection&message", {
         jsInstance.rooms.push({
           roomName: message.from,
           roomId: message.from,
-          // unreadCount: 4,
+          unreadCount: jsInstance.rooms[Index].unreadCount + 1,
           index: message.from,
           lastMessage: {
             // content: "Last message received",
@@ -373,7 +373,7 @@ conn.addEventHandler("connection&message", {
         jsInstance.rooms.push({
           roomName: message.from,
           roomId: message.from,
-          // unreadCount: 4,
+          unreadCount: null,
           index: message.from,
           lastMessage: {
             // content: "Last message received",
@@ -464,7 +464,7 @@ conn.addEventHandler("connection&message", {
         jsInstance.rooms.push({
           roomName: message.from,
           roomId: message.from,
-          // unreadCount: 4,
+          unreadCount: null,
           index: message.from,
           lastMessage: {
             // content: "Last message received",
@@ -527,8 +527,22 @@ conn.addEventHandler("connection&message", {
   onError: (error) => {
     console.log("on error", error);
   },
-  onReceivedMessage: function () {
-    // alert(message);
+  onReceivedMessage: function (message) {
+    // alert("onReceived")
+    console.log("onREceived", message);
+  }, // Received a receipt for message delivery to the server.
+  onDeliveredMessage: function (message) {
+    // alert("onDeliverd")
+    console.log("onDelivered", message);
+  }, // Receive a receipt for message delivery to the client.
+  onReadMessage: function (message) {
+    alert("Receive a receipt for message delivery to the client");
+    console.log(message);
+  },
+  // Occurs when the conversation read receipt is received.
+  onChannelMessage: function (message) {
+    alert("Occurs when the conversation read receipt is received");
+    console.log(message);
   },
 });
 
@@ -551,7 +565,7 @@ export default {
           roomId: localStorage.getItem("AgoraUserId"),
           roomName: localStorage.getItem("AgoraUserId") + " (me)",
           avatar: "assets/imgs/people.png",
-          // unreadCount: 4,
+          unreadCount: null,
           index: localStorage.getItem("AgoraUserId"),
           lastMessage: {
             // content: "Last message received",
@@ -595,8 +609,6 @@ export default {
         { name: "deleteMessage", title: "Delete Message" },
       ],
       roomActions: [
-        { name: "inviteUser", title: "Invite User" },
-        { name: "removeUser", title: "Remove User" },
         { name: "deleteChat", title: "Delete Chat" },
       ],
       menuActions: [
@@ -663,17 +675,17 @@ export default {
           this.rooms.push({
             roomName: user,
             roomId: user,
-            // unreadCount: 4,
+            unreadCount: 0,
             index: user,
             lastMessage: {
-              // content: "Last message received",
-              // senderId: 1234,
-              // username: "John Doe",
-              // timestamp: "10:20",
-              // saved: true,
-              // distributed: false,
-              // seen: false,
-              // new: true,
+              content: "",
+              senderId: "null",
+              username: "",
+              timestamp: "",
+              saved: true,
+              distributed: false,
+              seen: false,
+              new: true,
             },
             avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
             users: [
@@ -746,8 +758,8 @@ export default {
               // system: false,
               saved: true,
               distributed: true,
-              // seen: true,
-              // deleted: false,
+              seen: true,
+              deleted: false,
               // disableActions: false,
               // disableReactions: false,
               files: msg.ext?.file_type
@@ -785,6 +797,21 @@ export default {
             });
 
             this.messagesLoaded = true;
+            var Index = this.rooms.findIndex(
+              (user) => user.index === room.roomId
+            );
+            console.log(Index);
+            var obj = {
+              content: "",
+              senderId: "",
+              username: "",
+              timestamp: "",
+              saved: true,
+              distributed: false,
+              seen: true,
+              new: false,
+            };
+            this.rooms[Index].lastMessage = obj;
             // this.rooms[0].lastMessage = null;
             // this.rooms[0].unreadCount = null;
           });
@@ -807,6 +834,10 @@ export default {
             content: message.content,
             senderId: this.currentUserId,
             files: null,
+            // saved: true,
+            distributed: true,
+            //   seen: true,
+            //   deleted: false,
             timestamp: new Date().toString().substring(16, 21),
             date: new Date().toDateString(),
           },
@@ -826,6 +857,10 @@ export default {
                 files: message.files ? AgoraServer.formattedFiles(file) : null,
                 timestamp: new Date().toString().substring(16, 21),
                 date: new Date().toDateString(),
+                saved: true,
+                // distributed: true,
+                seen: true,
+                deleted: false,
               },
             ];
           } else {
@@ -842,6 +877,10 @@ export default {
                     : null,
                   timestamp: new Date().toString().substring(16, 21),
                   date: new Date().toDateString(),
+                  saved: true,
+                  // distributed: true,
+                  seen: true,
+                  deleted: false,
                 },
               ];
             });
@@ -919,7 +958,10 @@ export default {
         // call a method to invite a user to the room
         case "deleteChat":
           console.log("deleting");
-          AgoraServer.deleteChat(roomId);
+          AgoraServer.deleteChat(roomId).then(() => {
+            var Index = this.rooms.findIndex((user) => user.index === roomId);
+            this.rooms.splice(Index,1)
+          });
           break;
         case "deleteRoom":
       }
@@ -937,7 +979,7 @@ export default {
           roomName: item,
           roomId: item,
           avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
-          // unreadCount: 4,
+          unreadCount: null,
           index: item,
           lastMessage: {
             // content: "Last message received",

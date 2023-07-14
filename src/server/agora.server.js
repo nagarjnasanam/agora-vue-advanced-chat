@@ -2,6 +2,7 @@ import AC from "agora-chat";
 import axios from 'axios'
 const conn = new AC.connection({
     appKey: process.env.VUE_APP_KEY,
+    delivery: true
 });
 const appToken = localStorage.getItem("AgoraAPPToken");
 export default {
