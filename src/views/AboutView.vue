@@ -137,9 +137,12 @@
                           </div>
                         </div>
                         <section id="video-container" v-if="callPlaced">
-                          <div id="local-video" ref="localVideo"></div>
+                          <div class="ratio ratio-16x9">
+                            <div id="local-video" ref="localVideo">local</div>
 
-                          <div id="remote-video" ref="remoteVideo"></div>
+<div id="remote-video"   ref="remoteVideo"> remote</div>
+                          </div>
+                        
 
                           <div class="action-btns">
                             <button
@@ -1018,6 +1021,7 @@ export default {
       this.showNewUsers = false;
     },
     async makeCall() {
+      this.callAlertData=""
       console.log("call");
       this.showDialog = true;
       await this.initRtmInstance();
@@ -1358,6 +1362,8 @@ export default {
       this.localVideoTrack.removeAllListeners();
       await this.rtcClient.unpublish();
       await this.rtcClient.leave();
+      this.mutedAudio=false
+      this.mutedVideo=false
       this.callPlaced = false;
       this.showDialog = false;
     },
@@ -1421,8 +1427,7 @@ export default {
 }
 
 #remote-video {
-  width: 100%;
-  height: 100%;
+  
   position: absolute;
   left: 0;
   right: 0;
@@ -1447,5 +1452,8 @@ export default {
 
 #btnGroup {
   flex-wrap: wrap;
+}
+.bgimg {
+    background-image: url('../assets/logo.png');
 }
 </style>
