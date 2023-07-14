@@ -298,8 +298,10 @@ conn.addEventHandler("connection&message", {
             content: message.msg,
             senderId: message.from,
             files: null,
-            timestamp: new Date().toString().substring(16, 21),
-            date: new Date().toDateString(),
+            timestamp: new Date(message.time).getHours() +
+                ":" +
+                new Date(message.time).getMinutes(),
+            date: new Date(message.time).toDateString(),
           
 
             })
@@ -317,6 +319,31 @@ conn.addEventHandler("connection&message", {
     notify({
       title: "Message from: " + message.from + "sent a voice message",
     });
+    if(jsInstance.selectedRoom.roomName === message.from){
+            jsInstance.messages.push({
+              
+            _id: message.from,
+            content: message.msg,
+            senderId: message.from,
+            files: [{
+                    name: message?.ext?.file_name,
+                      size: message.ext?.file_size,
+                      type: message.ext?.file_type,
+                      audio: true,
+                      duration: message.ext?.duration,
+                      url: message.thumb,
+                      // url: "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
+                      preview: message.thumb,
+            }],
+            timestamp: new Date(message.time).getHours() +
+                ":" +
+                new Date(message.time).getMinutes(),
+            date: new Date(message.time).toDateString(),
+          
+
+            })
+          }
+    
   },
   // Occurs when the token is about to expire.
   onTokenWillExpire: (params) => {
@@ -335,12 +362,38 @@ conn.addEventHandler("connection&message", {
       .append("The token has expired");
   },
   onImageMessage: (message) => {
-    console.log(message);
-    console.log(this)
-    // alert("Message from: " + message.from + " sent an image ")
-    notify({
+    
+    if (message.to === localStorage.getItem("AgoraUserId")){
+      notify({
       title: "Message from: " + message.from + " sent an image ",
     });
+
+    }
+    console.log(message);
+    console.log("thumb",message?.ext?.thumb)
+    if(jsInstance.selectedRoom.roomName === message.from){
+            jsInstance.messages.push({
+              
+            _id: message.from,
+            content: message?.msg,
+            senderId: message.from,
+            files: [ {
+                name: message.ext?.file_name,
+                size: message?.ext?.file_size,
+                type: message?.ext?.file_type,
+                url:message.thumb,
+                preview:message.thumb
+              }],
+            timestamp: new Date(message.time).getHours() +
+                ":" +
+                new Date(message.time).getMinutes(),
+            date: new Date(message.time).toDateString(),
+          
+
+            })
+          }
+    
+   
   },
   onError: (error) => {
     console.log("on error", error);
