@@ -72,7 +72,7 @@
     @delete-message="deleteMessage($event.detail[0])"
   >
     <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
-    <div  slot="room-header-info"
+    <div slot="room-header-info"
       class="d-flex bd-highlight"
       v-if="selectedRoom"
     >
@@ -228,7 +228,7 @@
 </template>
 
 <script>
-var jsInstance = {}
+var jsInstance = {};
 import AgoraServer from "../server/agora.server";
 import AC from "agora-chat";
 import axios from "axios";
@@ -268,82 +268,172 @@ conn.addEventHandler("connection&message", {
     // })
     // console.log(jsInstance.testMsg)
     // alert(jsInstance.testMsg)
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    console.log(
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    );
     // console.log(this)
 
-  //  jsInstance.findUserIndex(message.from)
-    
+    //  jsInstance.findUserIndex(message.from)
+
     console.log(message);
-    
 
     // alert("Message from: " + message.from + " Message: " + message.msg);
     if (message.to === localStorage.getItem("AgoraUserId")) {
-    var Index = jsInstance.rooms.findIndex((user) => user.index === message.from);
-    alert(Index)
-     jsInstance.rooms[Index].lastMessage={
-            content: message.msg,
-              senderId: message.from,
-              username:  message.from,
-              timestamp: "10:20",
-              saved: true,
-              distributed: false,
-              seen: false,
-              new: true,
-  
-          }
-          if(jsInstance.selectedRoom.roomName === message.from){
-            jsInstance.messages.push({
-              
-            _id: message.from,
-            content: message.msg,
-            senderId: message.from,
-            files: null,
-            timestamp: new Date(message.time).getHours() +
-                ":" +
-                new Date(message.time).getMinutes(),
-            date: new Date(message.time).toDateString(),
-          
+      var Index = jsInstance.rooms.findIndex(
+        (user) => user.index === message.from
+      );
+      // alert(Index);
+      if (Index < 0) {
+        // alert(Index)
+        jsInstance.rooms.push({
+          roomName: message.from,
+          roomId: message.from,
+          // unreadCount: 4,
+          index: message.from,
+          lastMessage: {
+            // content: "Last message received",
+            // senderId: 1234,
+            // username: "John Doe",
+            // timestamp: "10:20",
+            // saved: true,
+            // distributed: false,
+            // seen: false,
+            // new: true,
+          },
+          avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
+          users: [
+            {
+              _id: message.from,
+              username: message.from,
+              avatar: "assets/imgs/snow.png",
+              status: {
+                state: "offline",
+                lastChanged: "14 July, 20:00",
+              },
+            },
+            {
+              _id: jsInstance.currentUserId,
+              username: jsInstance.currentUserId,
+              avatar: "assets/imgs/doe.png",
+              status: {
+                state: "offline",
+                lastChanged: "today, 23:30",
+              },
+            },
+          ],
+          typingUsers: [],
+        });
+      }
+      console.log(jsInstance.rooms);
+      if (Index >= 0) {
+        // alert(Index);
 
-            })
-          }
+        jsInstance.rooms[Index].lastMessage = {
+          content: message.msg,
+          senderId: message.from,
+          username: message.from,
+          timestamp: "10:20",
+          saved: true,
+          distributed: false,
+          seen: false,
+          new: true,
+        };
+      }
+      if (jsInstance.selectedRoom.roomName === message.from) {
+        jsInstance.messages.push({
+          _id: message.from,
+          content: message.msg,
+          senderId: message.from,
+          files: null,
+          timestamp:
+            new Date(message.time).getHours() +
+            ":" +
+            new Date(message.time).getMinutes(),
+          date: new Date(message.time).toDateString(),
+        });
+      }
 
       notify({
-        title:   "Message from: " +  message.from +" Message: " +
-          message.msg 
+        title: "Message from: " + message.from + " Message: " + message.msg,
       });
-      
     }
   },
   onAudioMessage: (message) => {
     // alert("Message from: " + message.from + "sent a voice message");
-    notify({
-      title: "Message from: " + message.from + "sent a voice message",
-    });
-    if(jsInstance.selectedRoom.roomName === message.from){
-            jsInstance.messages.push({
-              
-            _id: message.from,
-            content: message.msg,
-            senderId: message.from,
-            files: [{
-                    name: message?.ext?.file_name,
-                      size: message.ext?.file_size,
-                      type: message.ext?.file_type,
-                      audio: true,
-                      duration: message.ext?.duration,
-                      url: message.thumb,
-                      // url: "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
-                      preview: message.thumb,
-            }],
-            timestamp: new Date(message.time).getHours() +
-                ":" +
-                new Date(message.time).getMinutes(),
-            date: new Date(message.time).toDateString(),
-          
 
-            })
-          }
-    
+    if (message.to === localStorage.getItem("AgoraUserId")) {
+      notify({
+        title: "Message from: " + message.from + "sent a voice message",
+      });
+      var Index = jsInstance.rooms.findIndex(
+        (user) => user.index === message.from
+      );
+      if (Index < 0) {
+        // alert(Index)
+        jsInstance.rooms.push({
+          roomName: message.from,
+          roomId: message.from,
+          // unreadCount: 4,
+          index: message.from,
+          lastMessage: {
+            // content: "Last message received",
+            // senderId: 1234,
+            // username: "John Doe",
+            // timestamp: "10:20",
+            // saved: true,
+            // distributed: false,
+            // seen: false,
+            // new: true,
+          },
+          avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
+          users: [
+            {
+              _id: message.from,
+              username: message.from,
+              avatar: "assets/imgs/snow.png",
+              status: {
+                state: "offline",
+                lastChanged: "14 July, 20:00",
+              },
+            },
+            {
+              _id: jsInstance.currentUserId,
+              username: jsInstance.currentUserId,
+              avatar: "assets/imgs/doe.png",
+              status: {
+                state: "offline",
+                lastChanged: "today, 23:30",
+              },
+            },
+          ],
+          typingUsers: [],
+        });
+      }
+      if (jsInstance.selectedRoom.roomName === message.from) {
+        jsInstance.messages.push({
+          _id: message.from,
+          content: message.msg,
+          senderId: message.from,
+          files: [
+            {
+              name: message?.ext?.file_name,
+              size: message.ext?.file_size,
+              type: message.ext?.file_type,
+              audio: true,
+              duration: message.ext?.duration,
+              url: message.thumb,
+              // url: "https://firebasestorage.googleapis.com/v0/b/vuexfire-a9c43.appspot.com/o/files%2F6R0MijpK6M4AIrwaaCY2%2F5RM2yf2TBCVmAUpaHbCD%2Fimage.png?alt=media&token=141dc7d8-1665-438b-871e-6e8566fabd2c",
+              preview: message.thumb,
+            },
+          ],
+          timestamp:
+            new Date(message.time).getHours() +
+            ":" +
+            new Date(message.time).getMinutes(),
+          date: new Date(message.time).toDateString(),
+        });
+      }
+    }
   },
   // Occurs when the token is about to expire.
   onTokenWillExpire: (params) => {
@@ -362,38 +452,77 @@ conn.addEventHandler("connection&message", {
       .append("The token has expired");
   },
   onImageMessage: (message) => {
-    
-    if (message.to === localStorage.getItem("AgoraUserId")){
+    if (message.to === localStorage.getItem("AgoraUserId")) {
       notify({
-      title: "Message from: " + message.from + " sent an image ",
-    });
-
+        title: "Message from: " + message.from + " sent an image ",
+      });
+      var Index = jsInstance.rooms.findIndex(
+        (user) => user.index === message.from
+      );
+      if (Index < 0) {
+        // alert(Index)
+        jsInstance.rooms.push({
+          roomName: message.from,
+          roomId: message.from,
+          // unreadCount: 4,
+          index: message.from,
+          lastMessage: {
+            // content: "Last message received",
+            // senderId: 1234,
+            // username: "John Doe",
+            // timestamp: "10:20",
+            // saved: true,
+            // distributed: false,
+            // seen: false,
+            // new: true,
+          },
+          avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
+          users: [
+            {
+              _id: message.from,
+              username: message.from,
+              avatar: "assets/imgs/snow.png",
+              status: {
+                state: "offline",
+                lastChanged: "14 July, 20:00",
+              },
+            },
+            {
+              _id: jsInstance.currentUserId,
+              username: jsInstance.currentUserId,
+              avatar: "assets/imgs/doe.png",
+              status: {
+                state: "offline",
+                lastChanged: "today, 23:30",
+              },
+            },
+          ],
+          typingUsers: [],
+        });
+      }
+      if (jsInstance.selectedRoom.roomName === message.from) {
+        jsInstance.messages.push({
+          _id: message.from,
+          content: message?.msg,
+          senderId: message.from,
+          files: [
+            {
+              name: message.ext?.file_name,
+              size: message?.ext?.file_size,
+              type: message?.ext?.file_type,
+              url: message.thumb,
+              preview: message.thumb,
+            },
+          ],
+          timestamp:
+            new Date(message.time).getHours() +
+            ":" +
+            new Date(message.time).getMinutes(),
+          date: new Date(message.time).toDateString(),
+        });
+      }
     }
     console.log(message);
-    console.log("thumb",message?.ext?.thumb)
-    if(jsInstance.selectedRoom.roomName === message.from){
-            jsInstance.messages.push({
-              
-            _id: message.from,
-            content: message?.msg,
-            senderId: message.from,
-            files: [ {
-                name: message.ext?.file_name,
-                size: message?.ext?.file_size,
-                type: message?.ext?.file_type,
-                url:message.thumb,
-                preview:message.thumb
-              }],
-            timestamp: new Date(message.time).getHours() +
-                ":" +
-                new Date(message.time).getMinutes(),
-            date: new Date(message.time).toDateString(),
-          
-
-            })
-          }
-    
-   
   },
   onError: (error) => {
     console.log("on error", error);
@@ -402,7 +531,6 @@ conn.addEventHandler("connection&message", {
     // alert(message);
   },
 });
-
 
 import { register } from "vue-advanced-chat";
 register();
@@ -577,14 +705,14 @@ export default {
     });
     this.loadingRooms = false;
     // assigning vue instance to javascript variable
-    jsInstance=this
-    console.log(jsInstance)
+    jsInstance = this;
+    console.log(jsInstance);
   },
   methods: {
     findUserIndex(from) {
       var Index = this.rooms.findIndex((user) => user.index === from);
-      alert(Index)
-      console.log(Index)
+      alert(Index);
+      console.log(Index);
     },
 
     async logout() {
