@@ -926,11 +926,13 @@ export default {
         }
       });
     },
-    async deleteMessage(userId, messageId) {
-      console.log(userId, messageId);
+    async deleteMessage(data) {
+      console.log("deleting")
+      console.log(data.message);
+      console.log(data.message.username)
       let option = {
-        mid: messageId,
-        to: userId,
+        mid: data.message._id,
+        to: data.message.username,
         chatType: "singleChat",
       };
       await conn.recallMessage(option).then((res, err) => {
@@ -948,7 +950,7 @@ export default {
           // call a method to add a message to the favorite list
           break;
         case "delete":
-          await this.deleteMessage(roomId, message.mid);
+          // await this.deleteMessage(roomId, message.mid);
 
         // call a method to share the message with another user
       }
@@ -1427,7 +1429,6 @@ export default {
 }
 
 #remote-video {
-  
   position: absolute;
   left: 0;
   right: 0;
