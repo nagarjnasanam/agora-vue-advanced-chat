@@ -267,22 +267,14 @@ conn.addEventHandler("connection&message", {
   },
   // Occurs when a text message is received.
   onTextMessage: (message) => {
-    // alert(message.msg);
-    // AgoraServer.fetchRooms("john").then(res=>{
-    //   console.log(res)
-    // })
-    // console.log(jsInstance.testMsg)
-    // alert(jsInstance.testMsg)
+  
     console.log(
       "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     );
-    // console.log(this)
-
-    //  jsInstance.findUserIndex(message.from)
+ 
 
     console.log(message);
 
-    // alert("Message from: " + message.from + " Message: " + message.msg);
     if (message.to === localStorage.getItem("AgoraUserId")) {
       var Index = jsInstance.rooms.findIndex(
         (user) => user.index === message.from
@@ -381,14 +373,14 @@ conn.addEventHandler("connection&message", {
           unreadCount: null,
           index: message.from,
           lastMessage: {
-            // content: "Last message received",
-            // senderId: 1234,
-            // username: "John Doe",
-            // timestamp: "10:20",
-            // saved: true,
-            // distributed: false,
-            // seen: false,
-            // new: true,
+            content: "sent an attachment",
+            senderId: message.from,
+            username: message.from,
+            timestamp: "10:20",
+            saved: true,
+            distributed: false,
+            seen: false,
+            new: true,
           },
           avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
           users: [
@@ -413,6 +405,20 @@ conn.addEventHandler("connection&message", {
           ],
           typingUsers: [],
         });
+      }
+      if (Index >= 0) {
+        // alert(Index);
+
+        jsInstance.rooms[Index].lastMessage = {
+          content: "sent an audio",
+          senderId: message.from,
+          username: message.from,
+          timestamp: "10:20",
+          saved: true,
+          distributed: false,
+          seen: false,
+          new: true,
+        };
       }
       if (jsInstance.selectedRoom.roomName === message.from) {
         jsInstance.messages.push({
@@ -472,14 +478,14 @@ conn.addEventHandler("connection&message", {
           unreadCount: null,
           index: message.from,
           lastMessage: {
-            // content: "Last message received",
-            // senderId: 1234,
-            // username: "John Doe",
-            // timestamp: "10:20",
-            // saved: true,
-            // distributed: false,
-            // seen: false,
-            // new: true,
+            content: "sent an attachment",
+            senderId: message.from,
+            username: message.from,
+            timestamp: "10:20",
+            saved: true,
+            distributed: false,
+            seen: false,
+            new: true,
           },
           avatar: "https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj",
           users: [
@@ -504,6 +510,20 @@ conn.addEventHandler("connection&message", {
           ],
           typingUsers: [],
         });
+      }
+      if (Index >= 0) {
+        // alert(Index);
+
+        jsInstance.rooms[Index].lastMessage = {
+          content: 'sent an imge',
+          senderId: message.from,
+          username: message.from,
+          timestamp: "10:20",
+          saved: true,
+          distributed: false,
+          seen: false,
+          new: true,
+        };
       }
       if (jsInstance.selectedRoom.roomName === message.from) {
         jsInstance.messages.push({
