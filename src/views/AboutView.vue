@@ -600,6 +600,7 @@ export default {
         CANCEL_SELECT_MESSAGE: "Annuler Sélection",
       },
       testMsg: "THOR",
+      userStatus:"",
       theme: "dark",
       showNewUsers: false,
       newUsers: [],
@@ -779,7 +780,18 @@ export default {
       location.reload();
     },
     async onFetchMessages({ room, options = {} }) {
+      var status = await AgoraServer.getUserStatus(room.roomId)
+      // selectedRoom.users[0].status.state
+      var Index = this.rooms.findIndex(
+              (user) => user.index === room.roomId
+            );
+            // alert(this.rooms[Index].users[0].status.state)
+
+      this.rooms[Index].users[0].status.state = status
+      // alert(room.users[0].status.state)
+
       this.selectedRoom = room;
+      this.selectedRoom.users[0].status.state = status
      
       this.messagesLoaded = false
       console.log(room, options);
