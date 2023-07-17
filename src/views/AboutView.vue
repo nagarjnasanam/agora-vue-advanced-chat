@@ -266,7 +266,7 @@ conn.addEventHandler("connection&message", {
     // this.login();
   },
   // Occurs when a text message is received.
-  onTextMessage: (message) => {
+  onTextMessage: async(message) => {
   
     console.log(
       "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
@@ -282,6 +282,7 @@ conn.addEventHandler("connection&message", {
       // alert(Index);
       if (Index < 0) {
         // alert(Index)
+        var status= await AgoraServer.getUserStatus(message.from)
         jsInstance.rooms.push({
           roomName: message.from,
           roomId: message.from,
@@ -304,7 +305,7 @@ conn.addEventHandler("connection&message", {
               username: message.from,
               avatar: "assets/imgs/snow.png",
               status: {
-                state: "offline",
+                state: status,
                 lastChanged: "14 July, 20:00",
               },
             },
@@ -336,7 +337,7 @@ conn.addEventHandler("connection&message", {
           new: true,
         };
       }
-      if (jsInstance.selectedRoom.roomName === message.from) {
+      if (jsInstance.selectedRoom?.roomName === message.from) {
         jsInstance.messages.push({
           _id: message.from,
           content: message.msg,
@@ -355,7 +356,7 @@ conn.addEventHandler("connection&message", {
       });
     }
   },
-  onAudioMessage: (message) => {
+  onAudioMessage: async(message) => {
     // alert("Message from: " + message.from + "sent a voice message");
 
     if (message.to === localStorage.getItem("AgoraUserId")) {
@@ -367,6 +368,7 @@ conn.addEventHandler("connection&message", {
       );
       if (Index < 0) {
         // alert(Index)
+        var status= await AgoraServer.getUserStatus(message.from)
         jsInstance.rooms.push({
           roomName: message.from,
           roomId: message.from,
@@ -389,7 +391,7 @@ conn.addEventHandler("connection&message", {
               username: message.from,
               avatar: "assets/imgs/snow.png",
               status: {
-                state: "offline",
+                state: status,
                 lastChanged: "14 July, 20:00",
               },
             },
@@ -420,7 +422,7 @@ conn.addEventHandler("connection&message", {
           new: true,
         };
       }
-      if (jsInstance.selectedRoom.roomName === message.from) {
+      if (jsInstance.selectedRoom?.roomName === message.from) {
         jsInstance.messages.push({
           _id: message.from,
           content: message.msg,
@@ -462,7 +464,7 @@ conn.addEventHandler("connection&message", {
       .appendChild(document.createElement("div"))
       .append("The token has expired");
   },
-  onImageMessage: (message) => {
+  onImageMessage: async(message) => {
     if (message.to === localStorage.getItem("AgoraUserId")) {
       notify({
         title: "Message from: " + message.from + " sent an image ",
@@ -472,6 +474,7 @@ conn.addEventHandler("connection&message", {
       );
       if (Index < 0) {
         // alert(Index)
+        var status= await AgoraServer.getUserStatus(message.from)
         jsInstance.rooms.push({
           roomName: message.from,
           roomId: message.from,
@@ -494,7 +497,7 @@ conn.addEventHandler("connection&message", {
               username: message.from,
               avatar: "assets/imgs/snow.png",
               status: {
-                state: "offline",
+                state: status,
                 lastChanged: "14 July, 20:00",
               },
             },
@@ -525,7 +528,7 @@ conn.addEventHandler("connection&message", {
           new: true,
         };
       }
-      if (jsInstance.selectedRoom.roomName === message.from) {
+      if (jsInstance.selectedRoom?.roomName === message.from) {
         jsInstance.messages.push({
           _id: message.from,
           content: message?.msg,
@@ -684,8 +687,10 @@ export default {
     };
   },
   async mounted() {
+    
     AgoraServer.logout();
     await AgoraServer.handleLogin();
+    
     var id = localStorage.getItem("AgoraUserId");
     var tkn = localStorage.getItem("AgoraToken");
     // alert(id);
@@ -708,7 +713,9 @@ export default {
 
     await AgoraServer.fetchRooms(this.currentUserId).then((res, err) => {
       if (res) {
-        res?.users?.map((user) => {
+        res?.users?.map(async(user) => {
+         var status= await AgoraServer.getUserStatus(user)
+         console.log("st",status)
           this.rooms.push({
             roomName: user,
             roomId: user,
@@ -731,7 +738,7 @@ export default {
                 username: user,
                 avatar: "assets/imgs/snow.png",
                 status: {
-                  state: "offline",
+                  state: status,
                   lastChanged: "14 July, 20:00",
                 },
               },

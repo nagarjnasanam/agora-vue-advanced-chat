@@ -218,55 +218,55 @@ export default {
     async sendAudio(uid, file) {
         var data
         // await files.forEach(async file => {
-            if (file.audio) {
-                var allowType = {
-                    mp3: true,
-                    amr: true,
-                    wmv: true,
+        if (file.audio) {
+            var allowType = {
+                mp3: true,
+                amr: true,
+                wmv: true,
+            };
+            let stringToRemove = "audio/";
+
+            let fileType = file.type.replace(stringToRemove, "");
+            console.log(fileType);
+            if (fileType.toLowerCase() in allowType) {
+                var option = {
+                    // Set the message type
+                    type: "audio",
+                    file: file,
+                    // Set the length of the audio file in seconds.
+                    length: "3",
+                    // Set the username of the message receiver.
+                    to: uid,
+                    // Set the chat type.
+                    chatType: "singleChat",
+                    // Occurs when the audio file fails to be uploaded.
+                    onFileUploadError: function () {
+                        console.log("onFileUploadError");
+                    },
+                    // Reports the progress of uploading the audio file.
+                    onFileUploadProgress: function (e) {
+                        console.log(e);
+                    },
+                    // Occurs when the audio file is successfully uploaded.
+                    onFileUploadComplete: function () {
+                        console.log("onFileUploadComplete");
+                    },
+                    ext: {
+                        file_type: fileType,
+                        file_name: file.name,
+                        file_duration: file.duration,
+                        file_size: file.size,
+                    },
                 };
-                let stringToRemove = "audio/";
+                // Create a voice message.
+                var msg = AC.message.create(option);
 
-                let fileType = file.type.replace(stringToRemove, "");
-                console.log(fileType);
-                if (fileType.toLowerCase() in allowType) {
-                    var option = {
-                        // Set the message type
-                        type: "audio",
-                        file: file,
-                        // Set the length of the audio file in seconds.
-                        length: "3",
-                        // Set the username of the message receiver.
-                        to: uid,
-                        // Set the chat type.
-                        chatType: "singleChat",
-                        // Occurs when the audio file fails to be uploaded.
-                        onFileUploadError: function () {
-                            console.log("onFileUploadError");
-                        },
-                        // Reports the progress of uploading the audio file.
-                        onFileUploadProgress: function (e) {
-                            console.log(e);
-                        },
-                        // Occurs when the audio file is successfully uploaded.
-                        onFileUploadComplete: function () {
-                            console.log("onFileUploadComplete");
-                        },
-                        ext: {
-                            file_type: fileType,
-                            file_name: file.name,
-                            file_duration: file.duration,
-                            file_size: file.size,
-                        },
-                    };
-                    // Create a voice message.
-                    var msg = AC.message.create(option);
-
-                    // Call send to send the voice message.
-                  data =   await conn.send(msg)
-
-                }
+                // Call send to send the voice message.
+                data = await conn.send(msg)
 
             }
+
+        }
         // })
 
         return data
@@ -314,7 +314,7 @@ export default {
 
     },
     deleteMessage(uid, messageId) {
-        console.log(uid,messageId)
+        console.log(uid, messageId)
         console.log(messageId.content)
         let option = {
             mid: messageId,
@@ -323,6 +323,27 @@ export default {
         };
         return conn.recallMessage(option)
 
+    },
+    async getUserStatus(username) {
+        // /{org_name}/{app_name}/users/{username}/status
+        // const data =  await
+        var status;
+        await axios
+            .get(
+                `https://a41.chat.agora.io/41975973/1139922/users/${username}/status`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${appToken}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            )
+            .then((res) => {
+                console.log(res?.data?.data[username])
+                status = res?.data?.data[username]
+
+            });
+        return status
     }
 
 }
