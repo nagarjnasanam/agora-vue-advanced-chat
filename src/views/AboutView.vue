@@ -916,9 +916,17 @@ export default {
                     _id: res.serverMsgId,
                     content: message.content,
                     senderId: this.currentUserId,
-                    files: message.files
-                      ? AgoraServer.formattedFiles(file)
-                      : null,
+                    files: [
+              {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                audio: true,
+                duration: file.duration,
+                url: file.localUrl,
+                preview:file.localUrl
+              },
+            ],
                     timestamp: new Date().toString().substring(16, 21),
                     date: new Date().toDateString(),
                     saved: true,
@@ -938,9 +946,16 @@ export default {
                   _id: res.serverMsgId,
                   content: message.content,
                   senderId: this.currentUserId,
-                  files: message.files
-                    ? AgoraServer.formattedFiles(file)
-                    : null,
+             files: [
+              {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+  
+                url:file.localUrl,
+                preview:file.localUrl
+              },
+            ],
                   timestamp: new Date().toString().substring(16, 21),
                   date: new Date().toDateString(),
                   saved: true,
