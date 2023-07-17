@@ -138,7 +138,7 @@
                           </div>
                         </div>
                         <section id="video-container" v-if="callPlaced">
-                          <div class="ratio ratio-16x9">
+                          <div class="">
                             <div id="local-video" ref="localVideo"></div>
 
                             <div id="remote-video" ref="remoteVideo">
@@ -781,7 +781,7 @@ export default {
     async onFetchMessages({ room, options = {} }) {
       this.selectedRoom = room;
      
-
+      this.messagesLoaded = false
       console.log(room, options);
       
       this.messages = [];
@@ -864,6 +864,7 @@ export default {
           });
         });
       });
+      this.messagesLoaded = true
       console.log("messages", messages);
     },
     async sendMessage(message) {
@@ -998,7 +999,7 @@ export default {
         }
       }).catch(err=>{
          notify({
-        title: err.data.message,
+        title: err.message,
       });
         console.log(err)
        
