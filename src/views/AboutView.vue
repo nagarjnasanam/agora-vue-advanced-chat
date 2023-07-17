@@ -79,7 +79,7 @@
     >
       <div class="p-2 flex-grow-1 bd-highlight">
         {{ selectedRoom.roomName }}
-        {{ updatedOnlineStatus[selectedRoom.roomName] }}
+        {{ selectedRoom.users[0].status.state }}
       </div>
       <div class="p-2 bd-highlight position-absolute end-0">
         <v-row justify="space-around">
@@ -139,10 +139,10 @@
                         </div>
                         <section id="video-container" v-if="callPlaced">
                           <div class="ratio ratio-16x9">
-                            <div id="local-video" ref="localVideo">local</div>
+                            <div id="local-video" ref="localVideo"></div>
 
                             <div id="remote-video" ref="remoteVideo">
-                              remote
+                              
                             </div>
                           </div>
 
@@ -249,7 +249,9 @@ const conn = new AC.connection({
 conn.addEventHandler("connection&message", {
   // Occurs when the app is connected to Agora Chat.
   onConnected: () => {
-    alert("conected");
+    notify({
+        title: "connected",
+      });
     document
       .getElementById("log")
       .appendChild(document.createElement("div"))
@@ -777,10 +779,11 @@ export default {
       location.reload();
     },
     async onFetchMessages({ room, options = {} }) {
-      await this.initRtmInstance();
+      this.selectedRoom = room;
+     
 
       console.log(room, options);
-      this.selectedRoom = room;
+      
       this.messages = [];
       const messages = [];
       AgoraServer.retrieveIndividualChat(room.roomId).then((res) => {
@@ -1041,6 +1044,7 @@ export default {
     },
     onModalValue(item) {
       console.log("onModalValue", item);
+     
       this.rooms = [
         {
           roomName: item,
