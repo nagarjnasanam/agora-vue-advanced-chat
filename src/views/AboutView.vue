@@ -1,10 +1,17 @@
 <template>
   <div class="d-flex bd-highlight">
-    <div class="p-2 flex-grow-1 bd-highlight">
-      <h1>Agora Web chat</h1>
+    <div class="p-2 flex-grow-1 bd-highlight text-wrap ">
+      <div class="badge bg-primary text-wrap text-center fw-bold fs-6" style="width: 10rem; height: 2rem;">
+  Agora Web Chat
+</div>
+   
+     
+    </div>
+    <div class="p-2 flex-fill bd-highlight">
+      <span class="fw-bold fs-3 ">{{this.currentUserId.toUpperCase()}}</span> 
     </div>
 
-    <div class="p-2 bd-highlight">
+    <div class="p-2 bd-highlight ">
       <button
         @click="
           () => {
@@ -30,7 +37,7 @@
     </div>
     <div class="p-2 bd-highlight">
       <button @click="logout()" class="btn btn-danger">
-        logout <span class="text-success">{{ this.currentUserId }}</span>
+        logout 
       </button>
     </div>
   </div>
@@ -709,10 +716,9 @@ export default {
         console.log(res);
       });
     this.currentUserId = localStorage.getItem("AgoraUserId");
-
+    await this.fetchVideoCallingUsers();
     await this.initRtmInstance();
     console.log(this.updatedOnlineStatus);
-    await this.fetchVideoCallingUsers();
 
     await AgoraServer.fetchRooms(this.currentUserId).then((res, err) => {
       if (res) {
